@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AZoom staff dashboard for car availability and rental cost analysis.">
+  <title>Admin Dashboard | AZoom</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body id="top">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="head">
+    <div class="wrap head-in">
+      <a class="brand" href="index.html"><b>AZoom</b><small>CAR RENTAL</small></a>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="cars.html">Cars</a>
+        <a class="on" href="admin.html">Admin</a>
+      </nav>
+      <a class="btn alt" id="account-link" href="account.html">Log in</a>
+    </div>
+  </header>
+  <main id="main">
+    <section class="banner">
+      <div class="wrap">
+        <p class="label">AZOOM STAFF VIEW</p>
+        <h1>Fleet and cost overview.</h1>
+        <p>Staff can review fleet status and rental costs after signing in from the AZoom login page.</p>
+      </div>
+    </section>
+    <section class="section" id="admin-login-required" hidden>
+      <div class="wrap">
+        <div class="panel narrow">
+          <p class="label">STAFF ACCESS</p>
+          <h2>Staff sign-in required</h2>
+          <p>Sign in from the AZoom login page with the staff account to open this dashboard.</p>
+          <a class="btn" href="account.html">Go to sign in &rarr;</a>
+        </div>
+      </div>
+    </section>
+    <div id="admin-content" hidden>
+      <section class="section">
+        <div class="wrap">
+          <div class="panel staff-session">
+            <p>Signed in as <b>staff</b> (staff@gmail.com)</p>
+            <button class="btn alt" id="staff-logout" type="button">Sign out</button>
+          </div>
+        </div>
+      </section>
+    <section class="section" id="admin-inventory">
+      <div class="wrap">
+        <div class="title">
+          <p class="label">FLEET STATUS</p>
+          <h2>Car inventory</h2>
+          <p>Staff can mark a car as rented out, record its return, and inspect it to issue the customer’s final bill.</p>
+        </div>
+        <div class="admin-stats fleet-stats">
+          <article class="panel"><p class="label">AVAILABLE</p><p class="admin-count" id="admin-available">0</p></article>
+          <article class="panel"><p class="label">RESERVED</p><p class="admin-count" id="admin-reserved">0</p></article>
+          <article class="panel"><p class="label">RENTED OUT</p><p class="admin-count" id="admin-rented">0</p></article>
+          <article class="panel"><p class="label">RETURNED</p><p class="admin-count" id="admin-returned">0</p></article>
+        </div>
+        <div class="table-wrap">
+          <table class="table admin-table">
+            <thead><tr><th>Car</th><th>Category</th><th>Daily rate</th><th>Status</th><th>Customer</th><th>Date</th><th>Action</th></tr></thead>
+            <tbody id="admin-car-rows"><tr><td colspan="7">Loading car inventory...</td></tr></tbody>
+          </table>
+        </div>
+        <p class="msg success" id="admin-action-msg" role="status" aria-live="polite" hidden></p>
+      </div>
+    </section>
+    <div class="confirm-modal" id="admin-action-modal" hidden>
+      <div class="confirm-box" role="dialog" aria-modal="true" aria-labelledby="admin-action-title">
+        <p class="label" id="admin-action-label">STAFF ACTION</p>
+        <h2 id="admin-action-title">Confirm fleet update</h2>
+        <p id="admin-action-copy"></p>
+        <div class="confirm-actions">
+          <button class="btn" id="admin-action-confirm" type="button">Confirm</button>
+          <button class="btn alt" id="admin-action-cancel" type="button">Go back</button>
+        </div>
+      </div>
+    </div>
+    <div class="confirm-modal" id="inspection-modal" hidden>
+      <div class="confirm-box inspection-dialog" role="dialog" aria-modal="true" aria-labelledby="inspection-title">
+        <form id="inspection-form">
+          <p class="label">RETURN INSPECTION</p>
+          <h2 id="inspection-title">Inspect returned car</h2>
+          <p id="inspection-booking-info"></p>
+          <p class="small">Choose a condition for every checklist item. Repair costs accept numbers only. Attach image files up to 1 MB total if needed.</p>
+          <div id="inspection-checklist"></div>
+          <div class="field inspection-summary-comment">
+            <label for="inspection-general-comment">Additional staff comments</label>
+            <textarea id="inspection-general-comment" rows="3" maxlength="1000"></textarea>
+          </div>
+          <p class="msg" id="inspection-message" role="status" aria-live="polite" hidden></p>
+          <div class="confirm-actions">
+            <button class="btn" id="inspection-final-bill" type="submit">Final bill</button>
+            <button class="btn alt" id="inspection-close" type="button">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <section class="section soft" id="cost-analysis">
+      <div class="wrap">
+        <div class="title">
+          <p class="label">COST ANALYSIS</p>
+          <h2>Rental charges and payments</h2>
+          <p>These figures total all saved customer reservations and inspections in this browser.</p>
+        </div>
+        <div class="panel">
+          <p><b id="admin-booking-car">No saved reservation</b></p>
+          <p id="admin-booking-state">No current booking</p>
+          <div class="admin-stats">
+            <article class="panel"><p class="label">RENTAL CHARGE</p><p class="admin-value" id="admin-rent">S$0.00</p></article>
+            <article class="panel"><p class="label">DAMAGE CHARGE</p><p class="admin-value" id="admin-damage">S$0.00</p></article>
+            <article class="panel"><p class="label">TOTAL DUE</p><p class="admin-value" id="admin-total">S$0.00</p></article>
+            <article class="panel"><p class="label">PAID</p><p class="admin-value" id="admin-paid">S$0.00</p></article>
+            <article class="panel"><p class="label">OUTSTANDING</p><p class="admin-value" id="admin-outstanding">S$0.00</p></article>
+          </div>
+          <p class="note" id="admin-cost-note">Cost analysis includes every saved reservation.</p>
+        </div>
+      </div>
+    </section>
+    </div>
+  </main>
+  <footer class="foot">
+    <div class="wrap foot-grid">
+      <div><a class="brand light" href="index.html"><b>AZoom</b><small>CAR RENTAL</small></a><p>Electric drives around Singapore.</p></div>
+      <div><h3>Explore</h3><a href="cars.html">Our cars</a><a href="reservation.html">Reserve a car</a><a href="account.html">My account</a></div>
+      <div><h3>Staff</h3><a href="admin.html">Admin dashboard</a><a href="inspection.html">Inspection</a><a href="final-bill.html">Final bill</a></div>
+      <div><h3>Locations</h3><p>East: Changi Airport<br>West: Woodlands Checkpoint</p></div>
+    </div>
+    <div class="wrap foot-end">AZoom Car Rental - 2026 <a href="#top">Back to top &uarr;</a></div>
+  </footer>
+</body>
+</html>

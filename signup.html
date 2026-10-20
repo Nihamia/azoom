@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Create an AZoom customer account.">
+  <title>Sign Up | AZoom</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body id="top">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="head">
+    <div class="wrap head-in">
+      <a class="brand" href="index.html"><b>AZoom</b><small>CAR RENTAL</small></a>
+      <nav class="nav">
+        <a href="cars.html">Cars</a>
+        <a href="index.html#steps">How it works</a>
+        <a href="rental-process.html#locations">Locations</a>
+      </nav>
+      <a class="btn alt" id="account-link" href="account.html">Log in</a>
+      <a class="btn" href="reservation.html">Book a car &rarr;</a>
+    </div>
+  </header>
+  <main id="main" data-page="signup">
+    <section class="banner">
+      <div class="wrap">
+        <p class="label">CUSTOMER ACCOUNT</p>
+        <h1>Create your AZoom account.</h1>
+        <p>Sign up before making an online reservation. Your account lets you view your saved booking.</p>
+      </div>
+    </section>
+    <section class="section">
+      <div class="wrap">
+        <div class="panel narrow">
+          <form id="signup-form">
+            <p class="label">NEW TO AZOOM</p>
+            <h2>Create an account</h2>
+            <p>Enter your details to get started.</p>
+            <div class="fields">
+              <div class="field wide">
+                <label for="signup-name">Full name</label>
+                <input id="signup-name" type="text" autocomplete="name" required>
+              </div>
+              <div class="field wide">
+                <label for="signup-username">Username</label>
+                <input id="signup-username" type="text" autocomplete="username" required>
+              </div>
+              <div class="field wide">
+                <label for="signup-email">Email</label>
+                <input id="signup-email" type="email" autocomplete="email" required>
+              </div>
+              <div class="field wide">
+                <label for="signup-password">Password</label>
+                <input id="signup-password" type="password" autocomplete="new-password" required>
+              </div>
+            </div>
+            <p class="msg" id="signup-msg" role="status" aria-live="polite" hidden></p>
+            <button class="btn" type="submit">Create account &rarr;</button>
+          </form>
+          <p class="auth-link">Already have an account? <a class="text-link" id="login-link" href="account.html">Sign in</a></p>
+        </div>
+        <p class="note">Assignment prototype: account details and passwords are saved in this browser using the simple local-storage method from class. This is not real authentication; do not reuse a personal password here.</p>
+      </div>
+    </section>
+  </main>
+  <footer class="foot">
+    <div class="wrap foot-grid">
+      <div><a class="brand light" href="index.html"><b>AZoom</b><small>CAR RENTAL</small></a><p>Electric drives around Singapore.</p></div>
+      <div><h3>Explore</h3><a href="cars.html">Our cars</a><a href="reservation.html">Reserve a car</a><a href="index.html#steps">How it works</a></div>
+      <div><h3>Rental process</h3><a href="rental-process.html#pickup">Pickup</a><a href="rental-process.html#return">Return</a><a href="inspection.html">Inspection</a><a href="final-bill.html">Final bill</a></div>
+      <div><h3>Contact</h3><p>East: Changi Airport<br>West: Singapore</p><p class="small">Student project prototype</p></div>
+    </div>
+    <div class="wrap foot-end">AZoom Car Rental - 2026 <a href="#top">Back to top &uarr;</a></div>
+  </footer>
+</body>
+</html>

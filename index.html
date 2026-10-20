@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Book an electric car for a trip around Singapore.">
+        <title>AZoom Car Rental</title>
+        <link rel="stylesheet" href="style.css">
+        <script src="script.js" defer></script>
+    </head>
+    <body id="top">
+        <a class="skip" href="#main">Skip to content</a>
+        <header class="head">
+            <div class="wrap head-in">
+                <a class="brand" href="index.html">
+                    <b>AZoom</b>
+                    <small>CAR RENTAL</small>
+                </a>
+                
+                <nav class="nav">
+                    <a href="cars.html">Cars</a>
+                    <a class="on" href="index.html#steps">How it works</a>
+                    <a href="rental-process.html#locations">Locations</a>
+                </nav>
+                
+                <a class="btn alt" id="account-link" href="account.html">Log in</a><a class="btn" href="reservation.html">Book a car &rarr;</a>
+            </div>
+        </header>
+
+        <main id="main">
+            <section class="hero">
+                <img class="hero-img" src="images/frontpage1.png" alt="Blue car beside Singapore's Marina Bay at sunset">
+                <div class="copy">
+                    <p class="label">MORE ROADS AHEAD</p>
+                    <h1>Your next drive starts here.</h1>
+                    <p>Find a car for your plans. Book online, collect your car, and enjoy the road.</p>
+                    <a class="btn" href="cars.html">Explore cars &rarr;</a>
+                </div>
+            </section>
+        
+            <section class="search" id="journey">
+  <p class="label">START YOUR JOURNEY</p>
+  <h2>Booking details</h2>
+  <form id="home-form" class="home-form">
+    <div class="field wide">
+      <label for="home-car">Choose an electric car</label>
+      <select id="home-car" required>
+        <option value="" selected disabled>Select a category</option>
+        <option value="city-ev">City EV</option>
+        <option value="family-ev">Family EV</option>
+        <option value="premium-ev">Premium EV</option>
+      </select>
+    </div>
+    <div class="field wide">
+      <label for="home-branch">Pickup branch</label>
+      <select id="home-branch" required>
+        <option value="east">Changi Airport Branch</option>
+        <option value="west">Woodlands Checkpoint Branch</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="home-start-date">Pickup date</label>
+      <input id="home-start-date" type="date" required>
+    </div>
+    <div class="field">
+      <label for="home-end-date">Return date</label>
+      <input id="home-end-date" type="date" required>
+    </div>
+    <div class="wide">
+      <button class="btn" type="submit">Search cars &rarr;</button>
+    </div>
+  </form>
+</section>
+
+            <section class="section">
+                <div class="wrap">
+                    <div class="title">
+                        <p class="label">WHY AZOOM</p>
+                        <h2>Simple trips, from start to finish.</h2>
+                    </div>
+                    <div class="cards">
+                        <article class="card">
+                            <span class="icon">01</span>
+                            <h3>Wide selection</h3>
+                            <p>Choose an EV for city trips, family plans, or a premium drive.</p>
+                        </article>
+                        
+                        <article class="card">
+                            <span class="icon">02</span>
+                            <h3>Simple booking</h3>
+                            <p>Enter your details and keep a confirmation in this browser.</p>
+                        </article>
+                        
+                        <article class="card">
+                            <span class="icon">03</span>
+                            <h3>Two branches</h3>
+                            <p>Collect from Changi Airport in the East or the Woodlands branch.</p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="wrap">
+                    <div class="title">
+                        <p class="label">THE AZOOM FLEET</p>
+                        <h2>Choose your kind of drive.</h2>
+                        <p>Compare sample daily prices by category.</p>
+                    </div>
+                    <div class="cats">
+                        <article class="cat">
+                            <img src="images/byd-dolphin.jpg" alt="City EV car example">
+                            <h3>City EV</h3>
+                            <p>Compact cars for everyday trips.</p>
+                            <strong>S$72 &ndash; S$88 / day</strong>
+                            <a href="cars.html#city-ev">View City cars &rarr;</a>
+                        </article>
+                        <article class="cat">
+                            <img src="images/ATTO3.png"  alt="Family EV car example">
+                            <h3>Family EV</h3>
+                            <p>Room for passengers and bags.</p>
+                            <strong>S$105 &ndash; S$138 / day</strong>
+                            <a href="cars.html#family-ev">View Family cars &rarr;</a>
+                        </article>
+                        <article class="cat">
+                            <img src="images/BMW-i4-eDrive35.jpg" alt="Premium EV car exmaple">
+                            <h3>Premium EV</h3>
+                            <p>Comfort and technology for your journey.</p>
+                            <strong>S$178 &ndash; S$288 / day</strong>
+                            <a href="cars.html#premium-ev">View Premium cars &rarr;</a>
+                        </article>
+                    </div>
+                </div>
+            </section>
+            <section class="section soft" id="steps">
+                <div class="wrap">
+                    <div class="title">
+                        <p class="label">FROM START TO FINISH</p>
+                        <h2>A clear rental journey.</h2>
+                    </div>
+                    <ol class="steps">
+                        <li class="step">
+                            <b>01</b>
+                            <h3>Reserve online</h3>
+                            <p>Choose a car and enter booking details.</p>
+                            <a href="reservation.html">Reserve &rarr;</a>
+                        </li>
+                        <li class="step">
+                            <b>02</b>
+                            <h3>Collect your car</h3>
+                            <p>Pick up from an AZoom branch.</p>
+                            <a href="rental-process.html#pickup">Pickup details &rarr;</a>
+                        </li>
+                        <li class="step">
+                            <b>03</b>
+                            <h3>Return the car</h3>
+                            <p>Park in the designated return area.</p>
+                            <a href="rental-process.html#return">Return details &rarr;</a>
+                        </li>
+                        <li class="step">
+                            <b>04</b>
+                            <h3>Inspect the car</h3>
+                            <p>An employee checks for damage.</p>
+                            <a href="inspection.html">Inspection &rarr;</a>
+                        </li>
+                        <li class="step">
+                            <b>05</b>
+                            <h3>Pay the bill</h3>
+                            <p>Review rental and damage costs.</p>
+                            <a href="final-bill.html">Final bill &rarr;</a>
+                        </li>
+                    </ol>
+                </div>
+            </section>
+<section class="closing">
+    <div class="wrap closing-in">
+        <h2>Make room for a new route.</h2>
+        <a class="btn white" href="cars.html">Explore the fleet &rarr;</a>
+    </div>
+</section>
+</main>
+
+<footer class="foot">
+    <div class="wrap foot-grid">
+        <div>
+            <a class="brand light" href="index.html">
+                <b>AZoom</b>
+                <small>CAR RENTAL</small>
+            </a>
+            <p>Electric drives around Singapore.</p>
+        </div>
+        <div>
+            <h3>Explore</h3>
+            <a href="cars.html">Our cars</a>
+            <a href="reservation.html">Reserve a car</a>
+            <a href="index.html#steps">How it works</a>
+            <a href="admin.html">Admin dashboard</a>
+        </div>
+        <div>
+            <h3>Rental process</h3>
+            <a href="rental-process.html#pickup">Pickup</a>
+            <a href="rental-process.html#return">Return</a>
+            <a href="inspection.html">Inspection</a>
+            <a href="final-bill.html">Final bill</a>
+        </div>
+        <div>
+            <h3>Contact</h3>
+            <p>Changi Airport<br>Woodlands</p>
+            <p class="small">Student project prototype</p>
+        </div>
+    </div>
+    <div class="wrap foot-end">
+        AZoom Car Rental - 2026 
+        <a href="#top">Back to top &uarr;</a>
+    </div>
+</footer>
+</body>
+</html>

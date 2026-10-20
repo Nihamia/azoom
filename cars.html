@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Compare sixteen sample AZoom electric cars.">
+    <title>Our Cars | AZoom</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+  </head>
+  <body id="top">
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="head">
+      <div class="wrap head-in">
+        <a class="brand" href="index.html"><b>AZoom</b><small>CAR RENTAL</small></a>
+        <nav class="nav">
+          <a class="on" href="cars.html">Cars</a>
+          <a href="index.html#steps">How it works</a>
+          <a href="admin.html">Admin dashboard</a>
+          <a href="rental-process.html#locations">Locations</a>
+        </nav>
+        <a class="btn alt" id="account-link" href="account.html">Log in</a><a class="btn" href="reservation.html">Book a car &rarr;</a>
+      </div>
+    </header>
+    <main id="main">
+      <section class="banner">
+        <div class="wrap">
+          <p class="label">THE AZOOM FLEET</p>
+          <h1>Find the right electric car.</h1>
+          <p>Browse sixteen sample cars in three categories.</p>
+          <div class="tabs">
+            <a href="#city-ev">City EVs</a>
+            <a href="#family-ev">Family EVs</a>
+            <a href="#premium-ev">Premium EVs</a>
+          </div>
+          <div class="status-legend" aria-label="Car availability statuses">
+            <span class="status available">Available</span>
+            <span class="status reserved">Reserved</span>
+            <span class="status rented">Rented out</span>
+            <span class="status returned">Returned / inspection</span>
+          </div>
+          <p class="note" id="search-summary" hidden></p>
+        </div>
+      </section>
+      <section class="section">
+        <div class="wrap">
+          <div class="title">
+            <p class="label">SAMPLE VEHICLES</p>
+            <h2>Compare the fleet.</h2>
+            <p>Each model has its own sample daily rate. Choose a car to reserve.</p>
+          </div>
+          <section class="group" id="city-ev">
+            <div class="group-head">
+              <h2>City EVs</h2>
+              <p>Sample rates: <b>S$72-S$88 / day</b></p>
+            </div>
+            <div class="cars">
+              <article class="car"><span class="status available">Available</span>
+                <img class="car-pic" src="images/byd-dolphin.jpg" alt="BYD Dolphin">
+                <div class="info">
+                  <p class="label">COMPACT HATCHBACK</p>
+                  <h3>BYD Dolphin</h3>
+                  <p>Compact electric hatchback for city trips.</p>
+                  <ul class="facts">
+                    <li>340 km WLTP</li>
+                    <li>5 seats</li>
+                    <li>44.9 kWh</li>
+                  </ul>
+                  <div class="price"><b>S$72 <small>/ day</small></b><a href="reservation.html?car=byd-dolphin">Choose car &rarr;</a></div>
+                </div>
+              </article>
+              <article class="car"><span class="status available">Available</span>
+                <img class="car-pic" src="images/MG4.png" alt="MG4 EV Trophy Long Range">
+                <div class="info">
+                  <p class="label">COMPACT HATCHBACK</p>
+                  <h3>MG4 EV Trophy Long Range</h3>
+                  <p>Hatchback with a longer-range trim.</p>
+                  <ul class="facts">
+                    <li>450 km WLTP</li>
+                    <li>5 seats</li>
+                    <li>64 kWh</li>
+                  </ul>
+                  <div class="price"><b>S$78 <small>/ day</small></b><a href="reservation.html?car=mg4-ev">Choose car &rarr;</a></div>
+                </div>
+              </article>
+              <article class="car"><span class="status available">Available</span>
+                <img class="car-pic" src="images/cars/city-3.jpg" alt="Illustrative front three-quarter view of ORA Good Cat">
+                <div class="info">
+                  <p class="label">COMPACT HATCHBACK</p>
+                  <h3>ORA Good Cat</h3>
+                  <p>Distinctive compact EV for everyday driving.</p>
+                  <ul class="facts">
+                    <li>420 km claimed</li>
+                    <li>63 kWh</li>
+                    <li>105 kW</li>
+                  </ul>
+                  <div class="price"><b>S$84 <small>/ day</small></b><a href="reservation.html?car=ora-good-cat">Choose car &rarr;</a></div>
+                </div>
+              </article>
+              <article class="car"><span class="status available">Available</span>
+                <img class="car-pic" src="images/cars/city-4.jpg" alt="Illustrative front three-quarter view of Nissan LEAF e+ (2020)">
+                <div class="info">
+                  <p class="label">COMPACT HATCHBACK</p>
+                  <h3>Nissan LEAF e+ (2020)</h3>
+                  <p>Practical five-seat hatchback.</p>
+                  <ul class="facts">
+                    <li>385 km WLTP</li>
+                    <li>5 seats</li>
+                    <li>62 kWh</li>
+                  </ul>
+                  <div class="price"><b>S$88 <small>/ day</small></b><a href="reservation.html?car=nissan-leaf">Choose car &rarr;</a></div>
+                </div>
+              </article>
+              <article class="car"><span class="status available">Available</span>
+                <img class="car-pic" src="images/cars/city-5.jpg" alt="Illustrative front three-quarter view of Hyundai INSTER Long Range">
+                <div class="info">
+                  <p class="label">CITY ELECTRIC SUV</p>
+                  <h3>Hyundai INSTER Long Range</h3>
+                  <p>Compact four-seat EV for city trips.</p>
+                  <ul class="facts">
+                    <li>370 km WLTP</li>
+                    <li>4 seats</li>
+                    <li>49 kWh</li>
+                  </ul>
+                  <div class="price"><b>S$76 <small>/ day</small></b><a href="reservation.html?car=hyundai-inster">Choose car &rarr;</a></div>
+                </div>
+              </article>
+              <article class="car"><span class="status available">Available</span>
+                <img class="car-pic" src="images/cars/city-6.jpg" alt="Illustrative front three-quarter view of MINI Cooper SE Electric">
+                <div class="info">
+                  <p class="label">ELECTRIC HATCHBACK</p>
+                  <h3>MINI Cooper SE Electric</h3>
+                  <p>Compact electric hatch with a playful feel.</p>
+                  <ul class="facts">
+                    <li>385-400 km WLTP</li>
+                    <li>4 seats</li>
+                    <li>49.2 kWh</li>
+                  </ul>
+                  <div class="price"><b>S$82 <small>/ day</small></b><a href="reservation.html?car=mini-cooper-se">Choose car &rarr;</a></div>
+                </div>
+              </article>
+            </div>
+          </section>
+          <section class="group" id="family-ev">
+            <div class="group-head">
+              <h2>Family EVs</h2>
+              <p>Sample rates: <b>S$105-S$138 / day</b></p>
+            </div>
+            <div class="cars">
+              <article class="car"><span class="status available">Available</span>
+                <img class="car-pic" src="images/cars/family-1.jpg" alt="Illustrative front three-quarter view of BYD Atto 3">
+                <div class="info">
+                  <p class="label">ELECTRIC SUV</p>
+                  <h3>BYD Atto 3</h3>
+                  <p>Roomy SUV with flexible luggage space.</p>
+                  <ul class="facts">
+                    <li>420 km WLTP</li>
+                    <li>5 seats</li>
+                    <li>440 L boot</li>
+                  </ul>
+                  <div class="price"><b>S$105 <small>/ day</small></b><a href="reservation.html?car=byd-atto-3">Choose car &rarr;</a></div>
+                </div>
+              </article>
+              <article class="car"><span class="status available">Available</span>
+                <img class="car-pic" src="images/cars/family-2.jpg" alt="Illustrative front three-quarter view of Kia EV3 Long Range">
+                <div class="info">
+                  <p class="label">COMPACT ELECTRIC SUV</p>
+                  <h3>Kia EV3 Long Range</h3>
+                  <p>Compact SUV for family outings.</p>
+                  <ul class="facts">
+                    <li>501 km*</li>
+                    <li>Long Range</li>
+                    <li>17-inch wheels*</li>
+                  </ul>
+                  <div class="price"><b>S$118 <small>/ day</small></b><a href="reservation.html?car=kia-ev3">Choose car &rarr;</a></div>
+                </div>
+              </article>
+              <article class="car"><span class="status available">Available</span>
+                <img class="car-pic" src="images/cars/family-3.jpg" alt="Illustrative front three-quarter view of Tesla Model Y Long Range RWD">
+                <div class="info">
+                  <p class="label">ELECTRIC SUV</p>
+                  <h3>Tesla Model Y Long Range RWD</h3>
+                  <p>Five-seat SUV with space for luggage.</p>
+                  <ul class="facts">
+                    <li>661 km WLTP</li>
+                    <li>5 seats</li>
+                    <li>2,138 L cargo</li>
+                  </ul>
+                  <div class="price"><b>S$138 <small>/ day</small></b><a href="reservation.html?car=tesla-model-y">Choose car &rarr;</a></div>
+                </div>
+              </article>
+              <article class="car"><span class="status available">Available</span>
+                <img class="car-pic" src="images/cars/family-4.jpg" alt="Illustrative front three-quarter view of Hyundai IONIQ 5 Long Range 2WD">
+                <div class="info">
+                  <p class="label">ELECTRIC CROSSOVER</p>
+                  <h3>Hyundai IONIQ 5 Long Range 2WD</h3>
+                  <p>Spacious crossover for longer trips.</p>
+                  <ul class="facts">
+                    <li>507 km WLTP</li>
+                    <li>Long Range 2WD</li>
+                    <li>77.4 kWh</li>
+                  </ul>
+                  <div class="price"><b>S$125 <small>/ day</small></b><a href="reservation.html?car=hyundai-ioniq-5">Choose car &rarr;</a></div>
+                </div>
+              </article>
+              <article class="car"><span class="status available">Available</span>
+                <img class="car-pic" src="images/cars/family-5.jpg" alt="Illustrative front three-quarter view of Kia EV6 AWD Long Range">
+                <div class="info">
+                  <p class="label">ELECTRIC CROSSOVER</p>
+                  <h3>Kia EV6 AWD Long Range</h3>
+                  <p>All-wheel-drive crossover for long journeys.</p>
+                  <ul class="facts">
+                    <li>506 km WLTP</li>
+                    <li>AWD Long Range</li>
+                    <li>77.4 kWh</li>
+                  </ul>
+                  <div class="price"><b>S$132 <small>/ day</small></b><a href="reservation.html?car=kia-ev6">Choose car &rarr;</a></div>
+                </div>
+              </article>
+            </div>
+          </section>
+          <section class="group" id="premium-ev">
+            <div class="group-head">
+              <h2>Premium EVs</h2>
+              <p>Sample rates: <b>S$178-S$288 / day</b></p>
+            </div>
+            <div class="cars">
+              <article class="car"><span class="status available">Available</span>
+                <img class="car-pic" src="images/cars/premium-1.jpg" alt="Illustrative front three-quarter view of BMW i4 eDrive35">
+                <div class="info">
+                  <p class="label">ELECTRIC GRAN COUPE</p>
+                  <h3>BMW i4 eDrive35</h3>
+                  <p>Refined electric Gran Coupe.</p>
+                  <ul class="facts">
+                    <li>428-514 km WLTP</li>
+                    <li>210 kW</li>
+                    <li>Varies by trim</li>
+                  </ul>
+                  <div class="price"><b>S$178 <small>/ day</small></b><a href="reservation.html?car=bmw-i4">Choose car &rarr;</a></div>
+                </div>
+              </article>
+              <article class="car"><span class="status available">Available</span>
+                <img class="car-pic" src="images/cars/premium-2.jpg" alt="Illustrative front three-quarter view of Tesla Model 3 Premium RWD">
+                <div class="info">
+                  <p class="label">ELECTRIC SEDAN</p>
+                  <h3>Tesla Model 3 Premium RWD</h3>
+                  <p>Sleek sedan with a quiet cabin.</p>
+                  <ul class="facts">
+                    <li>750 km WLTP</li>
+                    <li>5 adults</li>
+                    <li>682 L cargo</li>
+                  </ul>
+                  <div class="price"><b>S$188 <small>/ day</small></b><a href="reservation.html?car=tesla-model-3">Choose car &rarr;</a></div>
+                </div>
+              </article>
+              <article class="car"><span class="status available">Available</span>
+                <img class="car-pic" src="images/cars/premium-3.jpg" alt="Illustrative front three-quarter view of Mercedes-Benz EQE 300">
+                <div class="info">
+                  <p class="label">LUXURY ELECTRIC SEDAN</p>
+                  <h3>Mercedes-Benz EQE 300</h3>
+                  <p>Premium sedan with a comfort-focused cabin.</p>
+                  <ul class="facts">
+                    <li>635 km WLTP*</li>
+                    <li>180 kW</li>
+                    <li>Luxury trim</li>
+                  </ul>
+                  <div class="price"><b>S$228 <small>/ day</small></b><a href="reservation.html?car=mercedes-eqe-300">Choose car &rarr;</a></div>
+                </div>
+              </article>
+              <article class="car"><span class="status available">Available</span>
+                <img class="car-pic" src="images/cars/premium-4.jpg" alt="Illustrative front three-quarter view of Porsche Taycan 4S">
+                <div class="info">
+                  <p class="label">ELECTRIC SPORTS SALOON</p>
+                  <h3>Porsche Taycan 4S</h3>
+                  <p>High-performance electric saloon.</p>
+                  <ul class="facts">
+                    <li>489-560 km WLTP</li>
+                    <li>400 kW</li>
+                    <li>All-wheel drive</li>
+                  </ul>
+                  <div class="price"><b>S$268 <small>/ day</small></b><a href="reservation.html?car=porsche-taycan-4s">Choose car &rarr;</a></div>
+                </div>
+              </article>
+              <article class="car"><span class="status available">Available</span>
+                <img class="car-pic" src="images/cars/premium-5.jpg" alt="Illustrative front three-quarter view of Audi e-tron GT quattro">
+                <div class="info">
+                  <p class="label">ELECTRIC GRAN TURISMO</p>
+                  <h3>Audi e-tron GT quattro</h3>
+                  <p>Grand tourer with a long-range battery.</p>
+                  <ul class="facts">
+                    <li>622 km WLTP</li>
+                    <li>105 kWh gross</li>
+                    <li>All-wheel drive</li>
+                  </ul>
+                  <div class="price"><b>S$288 <small>/ day</small></b><a href="reservation.html?car=audi-e-tron-gt">Choose car &rarr;</a></div>
+                </div>
+              </article>
+            </div>
+          </section>
+          <p class="note">Pictures are illustrative AI-generated artwork, not manufacturer photos. Ranges vary by trim and market. Prices are assignment assumptions. <a href="vehicle-image-credits.txt">Image credits and specifications</a>.</p>
+        </div>
+      </section>
+    </main>
+    <footer class="foot">
+      <div class="wrap foot-grid">
+        <div>
+          <a class="brand light" href="index.html"><b>AZoom</b><small>CAR RENTAL</small></a>
+          <p>Electric drives around Singapore.</p>
+        </div>
+        <div>
+          <h3>Explore</h3>
+          <a href="cars.html">Our cars</a>
+          <a href="reservation.html">Reserve a car</a>
+          <a href="index.html#steps">How it works</a>
+        </div>
+        <div>
+          <h3>Rental process</h3>
+          <a href="rental-process.html#pickup">Pickup</a>
+          <a href="rental-process.html#return">Return</a>
+          <a href="inspection.html">Inspection</a>
+          <a href="final-bill.html">Final bill</a>
+        </div>
+        <div>
+          <h3>Contact</h3>
+          <p>Changi Airport<br>Woodlands: Singapore</p>
+          <p class="small">Student project prototype</p>
+        </div>
+      </div>
+      <div class="wrap foot-end">AZoom Car Rental - 2026 <a href="#top">Back to top &uarr;</a></div>
+    </footer>
+  </body>
+</html>

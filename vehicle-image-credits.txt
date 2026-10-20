@@ -1,0 +1,95 @@
+AZoom Assignment 2 — Vehicle photo credits and specification sources
+====================================================================
+
+The current website uses three AI-generated vehicle illustration sheets saved under images/vehicles/. Each 3-by-2 sheet contains separate front three-quarter-view vehicle illustrations on white backgrounds; CSS displays each car as an individual tile. The artwork is illustrative and is not an official manufacturer photograph or a guarantee of exact trim styling.
+
+AI-GENERATED CATALOG ARTWORK
+--------------------------
+- City EV front-view sheet: images/vehicles/city-front-view.png
+- Family EV front-view sheet: images/vehicles/family-front-view.png
+- Premium EV front-view sheet: images/vehicles/premium-front-view.png
+- Generated with OpenAI ImageGen on 19 October 2026 using the supplied rental-listing screenshot as a camera-angle reference. Generated sheets replace the earlier straight-on artwork; those older sheets are archived in images/vehicles/previous-front-view-sheets/. Vehicle model names and specifications refer to the linked real-world manufacturer information; the illustrations are generic concept artwork.
+
+LEGACY PHOTO ACKNOWLEDGEMENTS
+-----------------------------
+The following credits are retained for older photos archived in images/vehicles/previous-photos-not-used/. Those photos are not displayed by the current site.
+
+IMAGE CREDITS
+-------------
+1. BYD Dolphin — Tokumeigakarinoaoshima, CC BY-SA 4.0
+   https://commons.wikimedia.org/wiki/File:BYD_DOLPHIN_(ZAA-EM2EXSF)_front.jpg
+   https://creativecommons.org/licenses/by-sa/4.0/
+
+2. MG4 EV — Alexander-93, CC BY-SA 4.0
+   https://commons.wikimedia.org/wiki/File:MG4_EV_IMG_9351_(cropped).jpg
+   https://creativecommons.org/licenses/by-sa/4.0/
+
+3. ORA Good Cat — User3204, CC BY-SA 4.0
+   https://commons.wikimedia.org/wiki/File:2021_Great_Wall_Ora_Good_Cat.jpg
+   https://creativecommons.org/licenses/by-sa/4.0/
+
+4. Nissan LEAF — Charles (usf1fan2 on Flickr), CC BY 2.0
+   https://commons.wikimedia.org/wiki/File:Nissan_Leaf_(2020)_(52067362868).jpg
+   https://creativecommons.org/licenses/by/2.0/
+
+5. BYD Atto 3 — Hubert Berberich, CC BY 4.0
+   https://commons.wikimedia.org/wiki/File:BYD_Atto_3_front-left.jpg
+   https://creativecommons.org/licenses/by/4.0/
+
+6. Kia EV3 — image dedicated to the public domain under CC0
+   https://commons.wikimedia.org/wiki/File:Kia_EV3_(2025)_(54721690853).jpg
+   https://creativecommons.org/publicdomain/zero/1.0/
+
+7. Tesla Model Y — Lekhaki, CC BY-SA 4.0
+   https://commons.wikimedia.org/wiki/File:Tesla_Model_Y.jpg
+   https://creativecommons.org/licenses/by-sa/4.0/
+
+8. Tesla Model 3 — M 93, CC BY-SA 3.0 Germany
+   https://commons.wikimedia.org/wiki/File:Tesla_Model_3_%E2%80%93_h_25012026.jpg
+   https://creativecommons.org/licenses/by-sa/3.0/de/deed.en
+
+9. BMW i4 — MrWalkr, CC BY-SA 4.0
+   https://commons.wikimedia.org/wiki/File:BMW_i4.jpg
+   https://creativecommons.org/licenses/by-sa/4.0/
+
+10. Mercedes-Benz EQE 300 — M 93, CC BY-SA 3.0 Germany
+    https://commons.wikimedia.org/wiki/File:Mercedes-Benz_EQE_300_AMG_Line_(V_295)_%E2%80%93_f_25012026.jpg
+    https://creativecommons.org/licenses/by-sa/3.0/de/deed.en
+
+SPECIFICATION SOURCES
+---------------------
+- BYD Dolphin Singapore spec sheet (340 km WLTP combined; 44.9 kWh version):
+  https://www.byd.com/material/byd-site/sg/product/pdf/BYD%20Dolphin%20Spec%20Sheet%20%28Digital%29.pdf
+- MG4 Singapore brochure (Trophy Long Range range and battery figures):
+  https://mg.com.sg/images/model/mg4/MG4-Brochure-20260119.pdf
+- ORA Good Cat Singapore brochure (420 km listed range; 63 kWh):
+  https://www.cyclecarriage.com/sg/-/media/jccl/ora/files/brochures/good-cat/2024/ora-good-cat-brochure-june2024.pdf
+- Nissan LEAF e+ fleet range guide (239 miles WLTP, approximately 385 km):
+  https://www.nissan.co.uk/content/dam/Nissan/gb/brochures/corporatesales/NMGB10385%20%E2%80%93%20Fleet%20Range%20Guide%20P4%20Artwork%20Leasing%2001.pdf
+- BYD Atto 3 Singapore 2025 spec sheet (420 km WLTP combined; 440 L boot):
+  https://www.byd.com/material/byd-site/sg/2025-atto-3/BYD-ATTO-3-2025-SPEC-SHEET.pdf
+- Kia EV3 Korean-market September 2026 catalogue (up to 501 km for Long Range 17-inch wheels; test cycle not specified in this project summary):
+  https://www.kia.com/content/dam/kwp/kr/ko/vehicles/pdf/en_brochure/en_catalog_ev3.pdf
+- Tesla Model Y Singapore (range varies by trim and wheel):
+  https://www.tesla.com/en_SG/modely
+- Tesla Model 3 Singapore (up to 750 km WLTP for the stated Premium rear-wheel-drive configuration):
+  https://www.tesla.com/en_sg/model3
+- BMW i4 eDrive35 Singapore (428–514 km WLTP depending on configuration):
+  https://www.bmw.com.sg/content/bmw/marketASIA/bmw_com_sg/en/all-models/bmw-i/i4/bmw-i4-gran-coupe.html
+- Mercedes-Benz EQE Singapore-market brochure (EQE 300 listed range up to 635 km WLTP):
+  https://mercedes-benzmodels.com/collateral/wp-content/uploads/2024/01/The-EQE-2.pdf
+
+- Hyundai INSTER Long Range (up to 370 km WLTP; 4 seats; 49 kWh):
+  https://www.hyundai.com/eu/en/models/inster/technical-data-downloads.html
+- MINI Cooper SE Electric (385–400 km WLTP; 49.2 kWh; 2026 UK technical data):
+  https://www.mini.co.uk/content/dam/MINI/marketDSM_GB/mini_co_uk/range/J01/MINI_Cooper_Electric_Pricing_Performance_and_Technical_Data.pdf.asset.1764148902119.pdf
+- Hyundai IONIQ 5 Singapore brochure (Long Range 2WD, up to 507 km WLTP):
+  https://www.hyundai.com/sg/static/fo-brand/assets/etc/IONIQ5_SG_Brochure_R3.pdf
+- Kia EV6 Singapore brochure (AWD Long Range 19-inch, up to 506 km WLTP):
+  https://www.kia.com/content/dam/kwcms/sg/en/pdf/Brochure/Mar2023/EV6_BrochureSpecsSheet_Mar2023.pdf
+- Porsche Taycan 4S international model page (489–560 km WLTP by configuration):
+  https://www.porsche.com/international/models/taycan/taycan-models/taycan-4s/
+- Audi e-tron GT quattro MY26 official technical data (622 km WLTP; 105 kWh gross):
+  https://media.audi.com/is/content/audi/country/ie/assets/downloads/product-guides/my26/etrongtmy26.pdf
+
+The AZoom rental prices on the website are student-project assumptions, not manufacturer prices or live rental quotes. Actual vehicle availability and specifications vary by market, model year, wheel, and trim. The manufacturer's range figure is not a guarantee of real-world driving distance.
