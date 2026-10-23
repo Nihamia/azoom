@@ -959,7 +959,10 @@ function addAdminActionButton(cell, carId, action, label, disabled, reference) {
 function renderAdminDashboard() {
   if (!adminRows) return;
   while (adminRows.firstChild) adminRows.removeChild(adminRows.firstChild);
-  const bookings = readBookings();
+  const bookings = readBookings(),
+  paidHistoryRows = document.getElementById("admin-paid-history-rows"),
+  paidHistoryEmpty = document.getElementById("admin-paid-history-empty"),
+  paidHistoryTable = document.getElementById("admin-paid-history-table");
   let available = 0, reserved = 0, rented = 0, returned = 0, repairing = 0;
   for (const id in vehicle) {
     const car = vehicle[id];
@@ -1056,6 +1059,29 @@ function renderAdminDashboard() {
     totalDue += total;
     paidTotal += paid;
     outstandingTotal += Math.max(0, total - paid)
+  }
+  if (paidHistoryRows) {
+    while (paidHistoryRows.firstChild) paidHistoryRows.removeChild(paidHistoryRows.firstChild);
+    let paidHistoryCount = 0;
+    for (let i = bookings.length - 1; i >= 0; i--) {
+      const booking = bookings[i];
+      if (!(booking.billReceived || booking.paid)) continue;
+      const row = document.createElement("tr"),
+      carCell = document.createElement("td"),
+      customerCell = document.createElement("td"),
+      datesCell = document.createElement("td"),
+      amountCell = document.createElement("td"),
+      car = vehicle[booking.carId] || {};
+      carCell.textContent = (booking.carName || car.name || "Car") + (car.cat ? " (" + car.cat + ")" : "");
+      customerCell.textContent = booking.email || "-";
+      datesCell.textContent = (booking.pickupDate || "-") + " to " + (booking.returnDate || "-");
+      amountCell.textContent = money(booking.paidAmount !== undefined && booking.paidAmount !== null ? booking.paidAmount : bookingTotal(booking));
+      row.appendChild(carCell); row.appendChild(customerCell); row.appendChild(datesCell); row.appendChild(amountCell);
+      paidHistoryRows.appendChild(row);
+      paidHistoryCount++
+    }
+    if (paidHistoryEmpty) paidHistoryEmpty.hidden = paidHistoryCount > 0;
+    if (paidHistoryTable) paidHistoryTable.hidden = paidHistoryCount === 0
   }
   show("admin-booking-car", bookings.length ? bookings.length + " saved reservation(s)" : "No saved reservation");
   show("admin-booking-state", bookings.length ? "Fleet: " + reserved + " reserved, " + rented + " rented out, " + returned + " returned, " + repairing + " under repair" : "No current bookings");

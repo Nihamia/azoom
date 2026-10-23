@@ -160,6 +160,16 @@
             <article class="panel"><p class="label">OUTSTANDING</p><p class="admin-value" id="admin-outstanding">S$0.00</p></article>
           </div>
           <p class="note" id="admin-cost-note">Cost analysis includes every saved reservation.</p>
+          <div class="paid-history">
+            <h3>Paid rental history</h3>
+            <p class="small" id="admin-paid-history-empty">No confirmed paid rentals yet.</p>
+            <div class="table-wrap" id="admin-paid-history-table" hidden>
+              <table class="table">
+                <thead><tr><th>Car</th><th>Customer</th><th>Rental dates</th><th>Amount paid</th></tr></thead>
+                <tbody id="admin-paid-history-rows"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </section>

@@ -1224,6 +1224,17 @@ p {
   color: #284a76;
 }
 
+.paid-history {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid #e8e1d8;
+}
+
+.paid-history h3 {
+  margin-top: 0;
+  color: #102548;
+}
+
 .fleet-stats {
   grid-template-columns: repeat(5,1fr);
 }
