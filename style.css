@@ -1386,3 +1386,36 @@ p {
   display: none;
 }
 
+
+/* Pickup and return locations */
+.pickup-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.pickup-card{overflow:hidden;border:1px solid #e8e1d8;border-radius:14px;background:#fff;box-shadow:0 10px 24px #1025480b}
+.pickup-pic{width:100%;height:210px;object-fit:cover}
+.pickup-info{padding:20px}
+.pickup-info .label{margin-bottom:8px}
+.pickup-info h3{margin-bottom:14px}
+.pickup-address{display:grid;gap:2px;margin:0;color:#102548}
+.pickup-address span{color:#40536e}
+.pickup-note{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:24px;padding:18px 20px;border-left:4px solid #ff4f3d;border-radius:8px;background:#fff;color:#40536e}
+.pickup-note b{color:#102548}
+.sg-map{position:relative;overflow:hidden;width:100%;height:560px;border:1px solid #d6e1e8;border-radius:16px;background-color:#eaf3f7;background-image:linear-gradient(#ffffff55 1px,transparent 1px),linear-gradient(90deg,#ffffff55 1px,transparent 1px);background-size:42px 42px}
+.map-island{position:absolute;inset:0;background:#dcebdd;clip-path:polygon(8% 63%,10% 56%,13% 50%,17% 44%,21% 37%,26% 30%,31% 24%,37% 17%,42% 12%,45% 8%,50% 9%,56% 11%,62% 15%,68% 19%,74% 24%,80% 29%,86% 35%,91% 40%,95% 46%,96% 51%,93% 57%,89% 62%,85% 67%,81% 72%,77% 78%,72% 83%,66% 88%,60% 91%,54% 94%,48% 93%,44% 90%,40% 86%,35% 83%,30% 79%,25% 75%,20% 71%,15% 68%,11% 66%)}
+.map-area{position:absolute;z-index:1;color:#67806f;font-size:11px;font-weight:bold;letter-spacing:1.5px;opacity:.8}
+.area-west{left:12%;top:56%}.area-north{left:37%;top:25%}.area-ne{left:68%;top:32%}.area-east{left:84%;top:59%}.area-central{left:48%;top:54%}.area-south{left:55%;top:82%}
+.map-pin{position:absolute;z-index:2;display:flex;align-items:center;justify-content:center;width:27px;height:27px;border:2px solid #fff;border-radius:50%;background:#e34333;box-shadow:0 2px 8px #10254855;color:#fff;font-size:9px;font-weight:bold;transform:translate(-50%,-50%)}
+.map-caption{position:absolute;right:18px;bottom:16px;z-index:3;display:flex;align-items:center;gap:9px;padding:10px 13px;border:1px solid #e8e1d8;border-radius:8px;background:#fff;color:#40536e;font-size:13px}
+.map-caption b{color:#102548}
+.map-dot{width:11px;height:11px;border-radius:50%;background:#e34333}
+.return-head{margin:34px 0 16px}
+.return-head .label{margin-bottom:7px}
+.return-head h3{margin-bottom:6px}
+.return-head p:last-child{margin-bottom:0}
+.return-list{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:0;padding:0;list-style:none}
+.return-item{display:grid;grid-template-columns:38px 1fr;gap:13px;padding:18px;border:1px solid #e8e1d8;border-radius:12px;background:#fff}
+.return-no{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:#ffd2c8;color:#102548;font-size:12px;font-weight:bold}
+.return-item h4{margin:0 0 8px;color:#102548;font-size:18px}
+.return-item p{margin:5px 0;font-size:14px}
+.location-note{margin-top:20px;padding:16px;border-radius:8px;background:#fff;font-size:13px}
+.location-note a{color:#102548;text-decoration:underline}
+@media(max-width:900px){.pickup-grid{grid-template-columns:repeat(2,1fr)}.sg-map{height:460px}}
+@media(max-width:600px){.pickup-grid,.return-list{grid-template-columns:1fr}.pickup-pic{height:200px}.sg-map{height:350px}.map-pin{width:24px;height:24px;font-size:8px}.map-area{font-size:9px}.map-caption{right:8px;bottom:8px;padding:7px 9px;font-size:11px}}

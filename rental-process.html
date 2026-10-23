@@ -1,19 +1,102 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Learn how to pick up and return your AZoom car."><title>Pickup and Return | AZoom</title><link rel="stylesheet" href="style.css"><script src="script.js" defer></script></head>
-<body id="top"><a class="skip" href="#main">Skip to content</a><header class="head">
-  <div class="wrap head-in">
-    <a class="brand" href="index.html"><b>AZoom</b><small>CAR RENTAL</small></a>
-    <nav class="nav" aria-label="Main navigation">
-      
-      <a href="index.html">Main</a>
-      <a href="cars.html">Cars</a>
-      <a class="on" href="rental-process.html#locations">Locations</a>
-      <a class="staff-only-link" href="admin.html" hidden>Admin dashboard</a>
-    
-    </nav>
-    <div class="head-actions">
-      <a class="btn alt" id="account-link" href="account.html">Login / Signup</a>
-      <a class="btn" href="reservation.html">Book a car &rarr;</a>
-    </div>
-  </div>
-</header><main id="main"><section class="banner"><div class="wrap"><p class="label">YOUR RENTAL, STEP BY STEP</p><h1>Pickup made clear. Return made easy.</h1><p>Collect your car at an East or West branch and return it to the designated car park.</p></div></section><section class="section" id="locations"><div class="wrap"><div class="title"><p class="label">TWO BRANCHES</p><h2>Choose where to collect.</h2><p>East is at Changi Airport. The West branch serves West Singapore.</p></div><div class="cards"><article class="card"><span class="icon">01</span><p class="label">EAST</p><h3>Changi Airport</h3><p>AZoom East Branch, Changi Airport.</p><a class="text-link" href="reservation.html">Reserve here &rarr;</a></article><article class="card"><span class="icon">02</span><p class="label">WEST</p><h3>West Branch</h3><p>AZoom West Branch, West Singapore.</p><a class="text-link" href="reservation.html">Reserve here &rarr;</a></article></div></div></section><section class="section soft" id="pickup"><div class="wrap two"><div><p class="label">STEP 02 - PICK UP</p><h2>Collect your car at the branch.</h2><p>An employee checks your booking and driver's licence, then shows you the vehicle.</p><ul class="checks"><li>Have your reference ready.</li><li>Bring your driver's licence.</li><li>Check the car with staff.</li><li>Ask about charging and returns.</li></ul></div><aside class="panel"><p class="label">BEFORE YOU DRIVE</p><h2>Check the car together.</h2><p>Make sure the car and branch match your reservation. Record existing marks before leaving.</p></aside></div></section><section class="section" id="return"><div class="wrap two return"><img class="return-pic" src="images/return-car-park.png" alt="A rental car in a marked return area during inspection"><div><p class="label">STEP 03 - RETURN</p><h2>Return to the designated car park.</h2><p>Park in the assigned AZoom bay and follow the signs. An employee inspects the returned car.</p><ul class="checks"><li>Park in the assigned bay.</li><li>Note the return time and odometer.</li><li>Remove belongings and return the key.</li></ul><a class="btn" href="inspection.html">Continue to inspection &rarr;</a></div></div></section></main><footer class="foot"><div class="wrap foot-grid"><div><a class="brand light" href="index.html"><b>AZoom</b><small>CAR RENTAL</small></a><p>Electric drives around Singapore.</p></div><div><h3>Explore</h3><a href="cars.html">Our cars</a><a href="reservation.html">Reserve a car</a><a href="index.html">Main</a></div><div><h3>Rental process</h3><a href="rental-process.html#pickup">Pickup</a><a href="rental-process.html#return">Return</a><a href="inspection.html">Inspection</a><a href="final-bill.html">Final bill</a></div><div><h3>Contact</h3><p>East: Changi Airport<br>West: Singapore</p><p class="small">Student project prototype</p></div></div><div class="wrap foot-end">AZoom Car Rental - 2026 <a href="#top">Back to top &uarr;</a></div></footer></body></html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="AZoom pickup and return locations across Singapore.">
+<title>Pickup and Return Locations | AZoom</title>
+<link rel="stylesheet" href="style.css">
+<script src="script.js" defer></script>
+</head>
+<body id="top">
+<a class="skip" href="#main">Skip to content</a>
+<header class="head"><div class="wrap head-in">
+<a class="brand" href="index.html"><b>AZoom</b><small>CAR RENTAL</small></a>
+<nav class="nav" aria-label="Main navigation">
+<a href="index.html">Main</a><a href="cars.html">Cars</a>
+<a class="on" href="rental-process.html#locations">Locations</a>
+<a class="staff-only-link" href="admin.html" hidden>Admin dashboard</a>
+</nav>
+<div class="head-actions"><a class="btn alt" id="account-link" href="account.html">Login / Signup</a><a class="btn" href="reservation.html">Book a car &rarr;</a></div>
+</div></header>
+<main id="main">
+<section class="banner"><div class="wrap">
+<p class="label">AZOOM LOCATIONS</p><h1>Pick up nearby. Return across Singapore.</h1>
+<p>View six pickup points and 20 HDB return car parks across Singapore.</p>
+</div></section>
+<section class="section" id="locations"><div class="wrap">
+<div class="title"><p class="label">CAR COLLECTION</p><h2>Six convenient pickup points.</h2><p>Check the terminal, car park and level shown for your collection location.</p></div>
+<div class="pickup-grid">
+<article class="pickup-card"><img class="pickup-pic" src="images/pickup-changi-terminal1.png" alt="Terminal 1 at Changi Airport"><div class="pickup-info"><p class="label">EAST · AIRPORT</p><h3>Changi Airport</h3><p class="pickup-address"><b>Terminal 1 Car Park A</b><span>Level B2</span></p></div></article>
+<article class="pickup-card"><img class="pickup-pic" src="images/pickup-causeway-point.png" alt="Causeway Point in Woodlands"><div class="pickup-info"><p class="label">NORTH</p><h3>Woodlands</h3><p class="pickup-address"><b>Causeway Point Car Park A</b><span>Level B1</span></p></div></article>
+<article class="pickup-card"><img class="pickup-pic" src="images/pickup-westgate.png" alt="Westgate and Jurong East"><div class="pickup-info"><p class="label">WEST</p><h3>Westgate · Jurong East</h3><p class="pickup-address"><b>Westgate Car Park C</b><span>Level B2</span></p></div></article>
+<article class="pickup-card"><img class="pickup-pic" src="images/pickup-nex-serangoon.png" alt="NEX shopping mall in Serangoon"><div class="pickup-info"><p class="label">NORTH-EAST</p><h3>NEX · Serangoon</h3><p class="pickup-address"><b>NEX Car Park</b><span>Level B2</span></p></div></article>
+<article class="pickup-card"><img class="pickup-pic" src="images/pickup-city-square.png" alt="City Square Mall"><div class="pickup-info"><p class="label">CENTRAL</p><h3>City Square</h3><p class="pickup-address"><b>City Square Mall Car Park</b><span>Level B2</span></p></div></article>
+<article class="pickup-card"><img class="pickup-pic" src="images/pickup-tiong-bahru-plaza.png" alt="Tiong Bahru Plaza"><div class="pickup-info"><p class="label">CENTRAL</p><h3>Tiong Bahru Plaza</h3><p class="pickup-address"><b>Tiong Bahru Plaza Car Park</b><span>Level B2</span></p></div></article>
+</div>
+<aside class="pickup-note"><b>Before collecting your car</b><span>Bring your booking receipt and driving licence. Meet AZoom staff at the listed car park level.</span></aside>
+</div></section>
+<section class="section soft" id="return"><div class="wrap">
+<div class="title"><p class="label">CAR RETURN</p><h2>Twenty HDB return points island-wide.</h2>
+<p>Use the numbered map to find a return point near your destination. Park in the assigned AZoom area, then place the key in the letterbox-style drop box below the nearest HDB block.</p></div>
+<div class="sg-map" role="img" aria-label="Illustrative map of Singapore with 20 numbered red markers. The matching address list follows.">
+<div class="map-island"></div>
+<span class="map-area area-west">WEST</span><span class="map-area area-north">NORTH</span>
+<span class="map-area area-ne">NORTH-EAST</span><span class="map-area area-east">EAST</span>
+<span class="map-area area-central">CENTRAL</span><span class="map-area area-south">SOUTH</span>
+<span class="map-pin" style="left:44.7%;top:9.2%;" title="01 Sembawang">01</span>
+<span class="map-pin" style="left:38.5%;top:16.1%;" title="02 Woodlands">02</span>
+<span class="map-pin" style="left:50.8%;top:17.4%;" title="03 Yishun">03</span>
+<span class="map-pin" style="left:74.1%;top:36%;" title="04 Punggol">04</span>
+<span class="map-pin" style="left:72.8%;top:41%;" title="05 Sengkang">05</span>
+<span class="map-pin" style="left:67.8%;top:60.2%;" title="06 Hougang">06</span>
+<span class="map-pin" style="left:88.4%;top:46.8%;" title="07 Pasir Ris">07</span>
+<span class="map-pin" style="left:82.1%;top:53.1%;" title="08 Tampines">08</span>
+<span class="map-pin" style="left:81%;top:68.5%;" title="09 Bedok">09</span>
+<span class="map-pin" style="left:72.9%;top:81.9%;" title="10 Marine Parade">10</span>
+<span class="map-pin" style="left:52.4%;top:49.5%;" title="11 Ang Mo Kio">11</span>
+<span class="map-pin" style="left:57.1%;top:59.9%;" title="12 Bishan">12</span>
+<span class="map-pin" style="left:55.8%;top:65%;" title="13 Toa Payoh">13</span>
+<span class="map-pin" style="left:61.4%;top:72.8%;" title="14 Kallang">14</span>
+<span class="map-pin" style="left:47.1%;top:89.9%;" title="15 Bukit Merah">15</span>
+<span class="map-pin" style="left:28.8%;top:73.4%;" title="16 Clementi">16</span>
+<span class="map-pin" style="left:19%;top:59%;" title="17 Jurong East">17</span>
+<span class="map-pin" style="left:8.2%;top:63.8%;" title="18 Jurong West">18</span>
+<span class="map-pin" style="left:25%;top:50.9%;" title="19 Bukit Batok">19</span>
+<span class="map-pin" style="left:31.5%;top:42.2%;" title="20 Bukit Panjang">20</span>
+<div class="map-caption"><span class="map-dot"></span>HDB return car park <b>20 locations</b></div>
+</div>
+<div class="return-head"><p class="label">RETURN POINT DETAILS</p><h3>Car park address and key drop location.</h3><p>Each number below matches a red marker on the map.</p></div>
+<ol class="return-list">
+<li class="return-item"><span class="return-no">01</span><div><h4>Sembawang</h4><p><b>Car park SB10:</b> Block 481A, Sembawang Drive.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 481A's sheltered entrance.</p></div></li>
+<li class="return-item"><span class="return-no">02</span><div><h4>Woodlands</h4><p><b>Car park PDW8:</b> Block 888A, Woodlands Drive 50.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 888A's sheltered entrance.</p></div></li>
+<li class="return-item"><span class="return-no">03</span><div><h4>Yishun</h4><p><b>Car park Y21M:</b> Block 296A, Yishun Street 20.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 296A's sheltered entrance.</p></div></li>
+<li class="return-item"><span class="return-no">04</span><div><h4>Punggol</h4><p><b>Car park PL10:</b> Block 174, Punggol Field.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 174's sheltered entrance.</p></div></li>
+<li class="return-item"><span class="return-no">05</span><div><h4>Sengkang</h4><p><b>Car park SK23:</b> Block 121E, Sengkang East Way.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 121E's sheltered entrance.</p></div></li>
+<li class="return-item"><span class="return-no">06</span><div><h4>Hougang</h4><p><b>Car park GHCM:</b> Block 180, Hougang Street 12.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 180's sheltered entrance.</p></div></li>
+<li class="return-item"><span class="return-no">07</span><div><h4>Pasir Ris</h4><p><b>Car park PM1:</b> Block 473A, Pasir Ris Drive 6.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 473A's sheltered entrance.</p></div></li>
+<li class="return-item"><span class="return-no">08</span><div><h4>Tampines</h4><p><b>Car park NT1:</b> Block 601, Tampines Avenue 9.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 601's sheltered entrance.</p></div></li>
+<li class="return-item"><span class="return-no">09</span><div><h4>Bedok</h4><p><b>Car park B10M:</b> Block 431, Bedok North Road.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 431's sheltered entrance.</p></div></li>
+<li class="return-item"><span class="return-no">10</span><div><h4>Marine Parade</h4><p><b>Car park MP19:</b> Block 89, Marine Parade Central.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 89's sheltered entrance.</p></div></li>
+<li class="return-item"><span class="return-no">11</span><div><h4>Ang Mo Kio</h4><p><b>Car park AM14:</b> Block 227, Ang Mo Kio Street 23.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 227's sheltered entrance.</p></div></li>
+<li class="return-item"><span class="return-no">12</span><div><h4>Bishan</h4><p><b>Car park BE14:</b> Block 167A, Bishan Street 13.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 167A's sheltered entrance.</p></div></li>
+<li class="return-item"><span class="return-no">13</span><div><h4>Toa Payoh</h4><p><b>Car park TPMA:</b> Block 60A, Lorong 4 Toa Payoh.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 60A's sheltered entrance.</p></div></li>
+<li class="return-item"><span class="return-no">14</span><div><h4>Kallang</h4><p><b>Car park KBM:</b> Block 65A, Kallang Bahru.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 65A's sheltered entrance.</p></div></li>
+<li class="return-item"><span class="return-no">15</span><div><h4>Bukit Merah</h4><p><b>Car park BMVM:</b> Block 126A, Bukit Merah View.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 126A's sheltered entrance.</p></div></li>
+<li class="return-item"><span class="return-no">16</span><div><h4>Clementi</h4><p><b>Car park CLRG:</b> Block 312, Clementi Avenue 4.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 312's sheltered entrance.</p></div></li>
+<li class="return-item"><span class="return-no">17</span><div><h4>Jurong East</h4><p><b>Car park J23M:</b> Block 372A, Jurong East Street 32.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 372A's sheltered entrance.</p></div></li>
+<li class="return-item"><span class="return-no">18</span><div><h4>Jurong West</h4><p><b>Car park JM10:</b> Block 648, Jurong West Street 61.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 648's sheltered entrance.</p></div></li>
+<li class="return-item"><span class="return-no">19</span><div><h4>Bukit Batok</h4><p><b>Car park BBM9:</b> Block 395A, Bukit Batok West Avenue 5.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 395A's sheltered entrance.</p></div></li>
+<li class="return-item"><span class="return-no">20</span><div><h4>Bukit Panjang</h4><p><b>Car park BJ26:</b> Block 449A, Bukit Panjang Ring Road.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 449A's sheltered entrance.</p></div></li>
+</ol>
+<p class="location-note">Car park codes, addresses and coordinates come from HDB's <a href="https://data.gov.sg/datasets/d_23f946fa557947f93a8043bbef41dd09/view" target="_blank" rel="noopener">Carpark Information dataset</a>. Key-box placements are proposed for this project and need site approval before real use.</p>
+</div></section>
+</main>
+<footer class="foot"><div class="wrap foot-grid">
+<div><a class="brand light" href="index.html"><b>AZoom</b><small>CAR RENTAL</small></a><p>Electric drives around Singapore.</p></div>
+<div><h3>Explore</h3><a href="cars.html">Our cars</a><a href="reservation.html">Reserve a car</a><a href="index.html">Main</a></div>
+<div><h3>Rental process</h3><a href="rental-process.html#locations">Pickup locations</a><a href="rental-process.html#return">Return locations</a><a href="inspection.html">Inspection</a><a href="final-bill.html">Final bill</a></div>
+<div><h3>Contact</h3><p>East: Changi Airport<br>West: Singapore</p><p class="small">Student project prototype</p></div>
+</div><div class="wrap foot-end">AZoom Car Rental - 2026 <a href="#top">Back to top &uarr;</a></div></footer>
+</body>
+</html>
