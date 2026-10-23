@@ -569,7 +569,7 @@ if (accountHistoryToggle && accountHistoryPanel) {
     accountHistoryPanel.hidden = !accountHistoryPanel.hidden;
     const expanded = !accountHistoryPanel.hidden;
     accountHistoryToggle.setAttribute("aria-expanded", expanded ? "true" : "false");
-    accountHistoryToggle.textContent = expanded ? "HIDE BOOKING HISTORY" : "BOOKING HISTORY"
+    accountHistoryToggle.textContent = expanded ? "HIDE BOOKING HISTORY" : "OPEN BOOKING HISTORY"
   })
 }
 if (accountBookingsArea) {
