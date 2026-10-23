@@ -1318,6 +1318,22 @@ p {
 }
 
 
+.account-history-toggle {
+  display: block;
+  width: 100%;
+  margin: 22px 0 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.account-history-toggle:hover {
+  color: #102548;
+}
+
 .account-booking-toggle {
   margin: 8px 0 12px;
 }

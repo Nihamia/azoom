@@ -395,7 +395,7 @@ function showAccountReservation(user) {
   for (let i = bookings.length - 1; i >= 0; i--) {
     const booking = bookings[i];
     if (booking.email !== user.email) continue;
-    const state = bookingStatus(booking), isHistory = state !== "reserved" && state !== "rented";
+    const state = bookingStatus(booking), isHistory = !!(booking.billReceived || booking.paid);
     if (isHistory) historyCount++;
     else activeCount++;
     const card = document.createElement("article"),
@@ -556,12 +556,22 @@ if (accountPage) {
   }
 }
 
-const cancelBookingsList = document.getElementById("account-bookings-list"),
+const accountHistoryToggle = document.getElementById("account-history-toggle"),
+accountHistoryPanel = document.getElementById("account-history-panel"),
+cancelBookingsList = document.getElementById("account-bookings-list"),
 accountBookingsArea = document.getElementById("account-state"),
 cancelModal = document.getElementById("cancel-modal"),
 cancelYes = document.getElementById("cancel-yes"),
 cancelNo = document.getElementById("cancel-no");
 let pendingCancelReference = "", lastCancelButton = null;
+if (accountHistoryToggle && accountHistoryPanel) {
+  accountHistoryToggle.addEventListener("click", function() {
+    accountHistoryPanel.hidden = !accountHistoryPanel.hidden;
+    const expanded = !accountHistoryPanel.hidden;
+    accountHistoryToggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+    accountHistoryToggle.textContent = expanded ? "HIDE BOOKING HISTORY" : "BOOKING HISTORY"
+  })
+}
 if (accountBookingsArea) {
   accountBookingsArea.addEventListener("click", function(e) {
     const target = e.target;
