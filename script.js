@@ -992,13 +992,19 @@ function renderAdminDashboard() {
     badge.textContent = state === "rented" ? "Rented out" : state === "reserved" ? "Reserved" : state === "returned" ? "Returned" : state === "repairing" ? "Under repair" : "Available";
     statusCell.appendChild(badge);
     if (booking) {
-      const email = document.createElement("span"), receipt = document.createElement("small");
-      email.textContent = booking.email;
-      receipt.textContent = "Receipt: " + booking.reference;
-      customerCell.appendChild(email);
-      customerCell.appendChild(document.createElement("br"));
-      customerCell.appendChild(receipt);
-      dateCell.textContent = booking.pickupDate + " to " + booking.returnDate
+      if (booking.billReceived || booking.paid) {
+        customerCell.textContent = "—";
+        dateCell.textContent = "—"
+      }
+      else {
+        const email = document.createElement("span"), receipt = document.createElement("small");
+        email.textContent = booking.email;
+        receipt.textContent = "Receipt: " + booking.reference;
+        customerCell.appendChild(email);
+        customerCell.appendChild(document.createElement("br"));
+        customerCell.appendChild(receipt);
+        dateCell.textContent = booking.pickupDate + " to " + booking.returnDate
+      }
     }
     else {
       customerCell.textContent = "—";
