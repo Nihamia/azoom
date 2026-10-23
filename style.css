@@ -73,9 +73,9 @@ p {
 }
 
 .head-in {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: flex-start;
   gap: 0;
   padding: 15px 0;
 }
@@ -100,7 +100,7 @@ p {
 .nav {
   display: flex;
   align-items: center;
-  margin-left: auto;
+  justify-self: center;
   gap: 26px;
   font-size: 14px;
 }
@@ -109,7 +109,7 @@ p {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-left: 26px;
+  justify-self: end;
 }
 
 .staff-only-link[hidden] {
@@ -886,6 +886,24 @@ p {
   }
 }
 
+@media(max-width:850px) {
+  .head-in {
+    grid-template-columns: auto 1fr;
+    row-gap: 12px;
+  }
+
+  .nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    justify-self: center;
+  }
+
+  .head-actions {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
 @media(max-width:600px) {
   .admin-stats {
     grid-template-columns: 1fr;
@@ -980,6 +998,7 @@ p {
   }
 
   .head-in {
+    display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 12px;
