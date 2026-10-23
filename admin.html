@@ -11,16 +11,20 @@
 <body id="top">
   <a class="skip" href="#main">Skip to content</a>
   <header class="head">
-    <div class="wrap head-in">
-      <a class="brand" href="index.html"><b>AZoom</b><small>CAR RENTAL</small></a>
-      <nav class="nav">
-        <a href="index.html">Home</a>
-        <a href="cars.html">Cars</a>
-        <a class="on" href="admin.html">Admin</a>
-      </nav>
-      <a class="btn alt" id="account-link" href="account.html">Log in</a>
+  <div class="wrap head-in">
+    <a class="brand" href="index.html"><b>AZoom</b><small>CAR RENTAL</small></a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="cars.html">Cars</a>
+      <a href="index.html">Main</a>
+      <a href="rental-process.html#locations">Locations</a>
+      <a class="staff-only-link on" href="admin.html" hidden>Admin dashboard</a>
+    </nav>
+    <div class="head-actions">
+      <a class="btn alt" id="account-link" href="account.html">Login / Signup</a>
+      <a class="btn" href="reservation.html">Book a car &rarr;</a>
     </div>
-  </header>
+  </div>
+</header>
   <main id="main">
     <section class="banner">
       <div class="wrap">
@@ -179,7 +183,7 @@
     <div class="wrap foot-grid">
       <div><a class="brand light" href="index.html"><b>AZoom</b><small>CAR RENTAL</small></a><p>Electric drives around Singapore.</p></div>
       <div><h3>Explore</h3><a href="cars.html">Our cars</a><a href="reservation.html">Reserve a car</a><a href="account.html">My account</a></div>
-      <div><h3>Staff</h3><a href="admin.html">Admin dashboard</a><a href="inspection.html">Inspection</a><a href="final-bill.html">Final bill</a></div>
+      <div><h3>Staff</h3><a class="staff-only-link" href="admin.html" hidden>Admin dashboard</a><a href="inspection.html">Inspection</a><a href="final-bill.html">Final bill</a></div>
       <div><h3>Locations</h3><p>East: Changi Airport<br>West: Woodlands Checkpoint</p></div>
     </div>
     <div class="wrap foot-end">AZoom Car Rental - 2026 <a href="#top">Back to top &uarr;</a></div>

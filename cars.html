@@ -11,17 +11,20 @@
   <body id="top">
     <a class="skip" href="#main">Skip to content</a>
     <header class="head">
-      <div class="wrap head-in">
-        <a class="brand" href="index.html"><b>AZoom</b><small>CAR RENTAL</small></a>
-        <nav class="nav">
-          <a class="on" href="cars.html">Cars</a>
-          <a href="index.html#steps">How it works</a>
-          <a href="admin.html">Admin dashboard</a>
-          <a href="rental-process.html#locations">Locations</a>
-        </nav>
-        <a class="btn alt" id="account-link" href="account.html">Log in</a><a class="btn" href="reservation.html">Book a car &rarr;</a>
-      </div>
-    </header>
+  <div class="wrap head-in">
+    <a class="brand" href="index.html"><b>AZoom</b><small>CAR RENTAL</small></a>
+    <nav class="nav" aria-label="Main navigation">
+      <a class="on" href="cars.html">Cars</a>
+      <a href="index.html">Main</a>
+      <a href="rental-process.html#locations">Locations</a>
+      <a class="staff-only-link" href="admin.html" hidden>Admin dashboard</a>
+    </nav>
+    <div class="head-actions">
+      <a class="btn alt" id="account-link" href="account.html">Login / Signup</a>
+      <a class="btn" href="reservation.html">Book a car &rarr;</a>
+    </div>
+  </div>
+</header>
     <main id="main">
       <section class="banner">
         <div class="wrap">
@@ -310,7 +313,7 @@
           <h3>Explore</h3>
           <a href="cars.html">Our cars</a>
           <a href="reservation.html">Reserve a car</a>
-          <a href="index.html#steps">How it works</a>
+          <a href="index.html">Main</a>
         </div>
         <div>
           <h3>Rental process</h3>

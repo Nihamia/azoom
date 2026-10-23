@@ -226,14 +226,18 @@ function getCurrentAccount() {
   return null
 }
 function updateAccountLink() {
-  const link = document.getElementById("account-link");
-  if (!link) return;
   let staffSignedIn = false;
   try {
     staffSignedIn = localStorage.getItem(staffLoginKey) === "yes"
   }
   catch (err) {
   }
+  const staffLinks = document.querySelectorAll(".staff-only-link");
+  for (let i = 0; i < staffLinks.length; i++) {
+    staffLinks[i].hidden = !staffSignedIn
+  }
+  const link = document.getElementById("account-link");
+  if (!link) return;
   if (staffSignedIn) {
     link.textContent = "Sign out";
     link.href = "#";
@@ -248,12 +252,12 @@ function updateAccountLink() {
     }
   }
   else if (getCurrentAccount()) {
-    link.textContent = "My account";
+    link.textContent = "My Account";
     link.href = "account.html";
     link.onclick = null
   }
   else {
-    link.textContent = "Log in";
+    link.textContent = "Login / Signup";
     link.href = "account.html";
     link.onclick = null
   }

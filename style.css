@@ -75,8 +75,8 @@ p {
 .head-in {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 25px;
+  justify-content: flex-start;
+  gap: 0;
   padding: 15px 0;
 }
 
@@ -99,8 +99,21 @@ p {
 
 .nav {
   display: flex;
-  gap: 30px;
+  align-items: center;
+  margin-left: auto;
+  gap: 26px;
   font-size: 14px;
+}
+
+.head-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 26px;
+}
+
+.staff-only-link[hidden] {
+  display: none !important;
 }
 
 .nav a:hover,
@@ -968,12 +981,24 @@ p {
 
   .head-in {
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .head-actions {
+    margin-left: auto;
+    gap: 8px;
+  }
+
+  .head-actions .btn {
+    padding: 10px 14px;
+    font-size: 14px;
   }
 
   .nav {
     order: 3;
     width: 100%;
+    margin-left: 0;
     justify-content: center;
     gap: 16px;
   }
