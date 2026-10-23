@@ -727,27 +727,7 @@ function pickupLocation(branch) {
   return "Woodlands Checkpoint, designated AZoom collection bay"
 }
 function validCardNumber(value) {
-  if (!/^[0-9 ]+$/.test(value)) {
-    return false
-  }
-  const digits = value.replace(/ /g, "");
-  if (!/^[0-9]{16}$/.test(digits)) {
-    return false
-  }
-  let total = 0,
-  doubleNext = false;
-  for (let i = digits.length - 1; i >= 0; i--) {
-    let number = Number(digits.charAt(i));
-    if (doubleNext) {
-      number = number * 2;
-      if (number > 9) {
-        number = number - 9
-      }
-    }
-    total = total + number;
-    doubleNext = !doubleNext
-  }
-  return total % 10 === 0
+  return /^[0-9]{16}$/.test(value)
 }
 function drawCode39(id, value) {
   const svg = document.getElementById(id);
@@ -1644,6 +1624,11 @@ if (form) {
   confirmModal = document.getElementById("confirm-modal"),
   confirmYes = document.getElementById("confirm-yes"),
   confirmLater = document.getElementById("confirm-later");
+  if (cardNumber) {
+    cardNumber.addEventListener('input', function() {
+      cardNumber.value = cardNumber.value.replace(/[^0-9]/g, '').slice(0, 16)
+    })
+  }
   let pendingBooking = null,
   draft = readReservationDraft(),
   request = null;
@@ -1856,7 +1841,7 @@ if (form) {
       return
     }
     days = Math.max(1, days);
-    if (!validCardNumber(cardNumber.value.trim())) {
+    if (!validCardNumber(cardNumber.value)) {
       cardError.textContent = "Enter a valid 16-digit card number.";
       cardError.hidden = false;
       return
