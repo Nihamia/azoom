@@ -1188,6 +1188,35 @@ p {
   font-weight: bold;
 }
 
+.appeal-staff-field {
+  margin-top: 14px;
+}
+
+.appeal-reply {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d8dce2;
+  border-radius: 7px;
+  color: #102548;
+  background: white;
+  font: inherit;
+}
+
+.appeal-reply:focus {
+  outline: 2px solid #ff8e7e;
+}
+
+.appeal-customer-message {
+  white-space: pre-wrap;
+}
+
+.appeal-cost-preview {
+  padding: 12px;
+  border-radius: 8px;
+  background: #faf7f2;
+  font-weight: bold;
+}
 
 .status.returned {
   border-color: #c4d2e8;
@@ -1196,7 +1225,7 @@ p {
 }
 
 .fleet-stats {
-  grid-template-columns: repeat(4,1fr);
+  grid-template-columns: repeat(5,1fr);
 }
 
 @media(max-width:900px) {
@@ -1210,3 +1239,79 @@ p {
     grid-template-columns: 1fr;
   }
 }
+
+.inspection-choices {
+  align-items: center;
+}
+
+.inspection-item .inspection-cost {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.inspection-cost label {
+  margin: 0;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.inspection-cost input {
+  box-sizing: border-box;
+  width: 130px;
+  padding: 8px 10px;
+  border: 1px solid #d8dce2;
+  border-radius: 7px;
+  color: #102548;
+  background: white;
+  font: inherit;
+}
+
+.inspection-bill-preview h2 {
+  margin-bottom: 18px;
+}
+
+.inspection-bill-preview .confirm-actions {
+  margin-top: 22px;
+}
+
+.inspection-cost input:disabled {
+  background: #f1f2f4;
+  color: #7b8797;
+  cursor: not-allowed;
+}
+
+
+.status.not-available {
+  border-color: #f2d18a;
+  background: #fff4d8;
+  color: #805b00;
+}
+
+.status.repairing {
+  border-color: #c9b8e8;
+  background: #f1ebfb;
+  color: #593b86;
+}
+
+.inspection-photo-remove {
+  align-self: flex-start;
+  width: auto;
+  margin-top: 4px;
+  padding: 8px 14px;
+}
+
+.inspection-photo-remove[hidden] {
+  display: none;
+}
+
+
+.account-booking-toggle {
+  margin: 8px 0 12px;
+}
+
+.account-booking-details[hidden] {
+  display: none;
+}
+

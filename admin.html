@@ -53,13 +53,14 @@
         <div class="title">
           <p class="label">FLEET STATUS</p>
           <h2>Car inventory</h2>
-          <p>Staff can mark a car as rented out, record its return, and inspect it to issue the customer’s final bill.</p>
+          <p>Staff can mark a car as rented out, record its return, issue the final bill, and choose to repair the car or make it available’s final bill.</p>
         </div>
         <div class="admin-stats fleet-stats">
           <article class="panel"><p class="label">AVAILABLE</p><p class="admin-count" id="admin-available">0</p></article>
           <article class="panel"><p class="label">RESERVED</p><p class="admin-count" id="admin-reserved">0</p></article>
           <article class="panel"><p class="label">RENTED OUT</p><p class="admin-count" id="admin-rented">0</p></article>
           <article class="panel"><p class="label">RETURNED</p><p class="admin-count" id="admin-returned">0</p></article>
+          <article class="panel"><p class="label">UNDER REPAIR</p><p class="admin-count" id="admin-repairing">0</p></article>
         </div>
         <div class="table-wrap">
           <table class="table admin-table">
@@ -81,23 +82,63 @@
         </div>
       </div>
     </div>
+    <div class="confirm-modal" id="appeal-modal" hidden>
+      <div class="confirm-box inspection-dialog" role="dialog" aria-modal="true" aria-labelledby="appeal-title">
+        <form id="appeal-form">
+          <p class="label">CUSTOMER APPEAL</p>
+          <h2 id="appeal-title">Review the appeal</h2>
+          <p id="appeal-booking-info"></p>
+          <div class="bill-item" id="appeal-receipt-details"></div>
+          <div class="bill-item">
+            <p><b>Customer message</b></p>
+            <p id="appeal-customer-message" class="appeal-customer-message"></p>
+          </div>
+          <div class="field appeal-staff-field">
+            <label for="appeal-reply">Reply to customer</label>
+            <textarea class="appeal-reply" id="appeal-reply" rows="4" maxlength="1000" required></textarea>
+          </div>
+          <div class="field appeal-staff-field">
+            <label for="appeal-deduction">Deduction from total (S$)</label>
+            <input id="appeal-deduction" type="number" min="0" step="0.01" value="0" required>
+          </div>
+          <p class="appeal-cost-preview" id="appeal-cost-preview"></p>
+          <p class="msg" id="appeal-form-message" role="status" aria-live="polite" hidden></p>
+          <div class="confirm-actions">
+            <button class="btn" type="submit">Send final bill</button>
+            <button class="btn alt" id="appeal-close" type="button">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
     <div class="confirm-modal" id="inspection-modal" hidden>
       <div class="confirm-box inspection-dialog" role="dialog" aria-modal="true" aria-labelledby="inspection-title">
         <form id="inspection-form">
-          <p class="label">RETURN INSPECTION</p>
-          <h2 id="inspection-title">Inspect returned car</h2>
-          <p id="inspection-booking-info"></p>
-          <p class="small">Choose a condition for every checklist item. Repair costs accept numbers only. Attach image files up to 1 MB total if needed.</p>
-          <div id="inspection-checklist"></div>
-          <div class="field inspection-summary-comment">
-            <label for="inspection-general-comment">Additional staff comments</label>
-            <textarea id="inspection-general-comment" rows="3" maxlength="1000"></textarea>
+          <div id="inspection-entry">
+            <p class="label">RETURN INSPECTION</p>
+            <h2 id="inspection-title">Inspect returned car</h2>
+            <p id="inspection-booking-info"></p>
+            <p class="small">Choose a condition for every checklist item. Repair costs accept numbers only. Attach image files up to 1 MB total if needed.</p>
+            <div id="inspection-checklist"></div>
+            <div class="field inspection-summary-comment">
+              <label for="inspection-general-comment">Additional staff comments</label>
+              <textarea id="inspection-general-comment" rows="3" maxlength="1000"></textarea>
+            </div>
+            <p class="msg" id="inspection-message" role="status" aria-live="polite" hidden></p>
+            <div class="confirm-actions">
+              <button class="btn" id="inspection-final-bill" type="submit">Final bill</button>
+              <button class="btn alt" id="inspection-close" type="button">Cancel</button>
+            </div>
           </div>
-          <p class="msg" id="inspection-message" role="status" aria-live="polite" hidden></p>
-          <div class="confirm-actions">
-            <button class="btn" id="inspection-final-bill" type="submit">Final bill</button>
-            <button class="btn alt" id="inspection-close" type="button">Cancel</button>
-          </div>
+          <section class="inspection-bill-preview" id="inspection-bill-preview" hidden>
+            <p class="label">FINAL BILL REVIEW</p>
+            <h2>Rental and inspection summary</h2>
+            <div id="inspection-bill-details"></div>
+            <p class="account-bill-total" id="inspection-bill-total"></p>
+            <div class="confirm-actions">
+              <button class="btn" id="inspection-proceed" type="button">Proceed</button>
+              <button class="btn alt" id="inspection-back" type="button">Back</button>
+            </div>
+          </section>
         </form>
       </div>
     </div>
@@ -115,7 +156,7 @@
             <article class="panel"><p class="label">RENTAL CHARGE</p><p class="admin-value" id="admin-rent">S$0.00</p></article>
             <article class="panel"><p class="label">DAMAGE CHARGE</p><p class="admin-value" id="admin-damage">S$0.00</p></article>
             <article class="panel"><p class="label">TOTAL DUE</p><p class="admin-value" id="admin-total">S$0.00</p></article>
-            <article class="panel"><p class="label">PAID</p><p class="admin-value" id="admin-paid">S$0.00</p></article>
+            <article class="panel"><p class="label">BILLS RECEIVED</p><p class="admin-value" id="admin-paid">S$0.00</p></article>
             <article class="panel"><p class="label">OUTSTANDING</p><p class="admin-value" id="admin-outstanding">S$0.00</p></article>
           </div>
           <p class="note" id="admin-cost-note">Cost analysis includes every saved reservation.</p>

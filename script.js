@@ -137,7 +137,7 @@ function getBookingForCar(carId) {
 }
 function bookingStatus(booking) {
   if (!booking) return "available";
-  if (booking.status === "available" || booking.status === "returned") return booking.status;
+  if (booking.status === "available" || booking.status === "returned" || booking.status === "repairing") return booking.status;
   if (booking.status === "rented") return "rented";
   if (booking.status === "reserved") return "reserved";
   if (booking.status) return "rented";
@@ -154,8 +154,13 @@ function bookingDamageTotal(booking) {
   }
   return Number(booking.inspection.damageCost || 0)
 }
+function bookingBaseTotal(booking) {
+  return Number(booking && booking.dailyRate || 0) * Number(booking && booking.rentalDays || 0) + bookingDamageTotal(booking)
+}
 function bookingTotal(booking) {
-  return Number(booking.dailyRate || 0) * Number(booking.rentalDays || 0) + bookingDamageTotal(booking)
+  const base = bookingBaseTotal(booking),
+  deduction = booking && booking.appealResolved ? Number(booking.appealDeduction || 0) : 0;
+  return Math.max(0, base - deduction)
 }
 function queryValue(name) {
   const parts = window.location.search.substring(1).split("&");
@@ -286,16 +291,23 @@ function createAccountBill(booking) {
   heading = document.createElement("h4"),
   total = document.createElement("p"),
   actions = document.createElement("div"),
-  payment = document.createElement("p");
+  payment = document.createElement("p"),
+  received = !!(booking.billReceived || booking.paid),
+  submitted = !!booking.paymentSubmitted && !received;
   bill.className = "account-bill";
   heading.textContent = "Final bill · " + booking.reference;
   bill.appendChild(heading);
+  addBillLine(bill, "Customer", booking.email || "-");
+  addBillLine(bill, "Car", booking.carName || "-");
+  addBillLine(bill, "Pickup branch", booking.pickupBranch || "-");
+  addBillLine(bill, "Collection point", booking.pickupLocation || pickupLocation(booking.pickupBranch));
+  addBillLine(bill, "Rental dates", (booking.pickupDate || "-") + " to " + (booking.returnDate || "-"));
   addBillLine(bill, "Rental", money(Number(booking.dailyRate) * Number(booking.rentalDays)) + " (" + booking.rentalDays + " day(s) x " + money(booking.dailyRate) + ")");
   const inspection = booking.inspection || {}, items = inspection.items || [];
   for (let i = 0; i < items.length; i++) {
     const item = items[i], row = document.createElement("div"), detail = document.createElement("p");
     row.className = "bill-item";
-    detail.textContent = item.label + " — " + item.condition + (item.condition === "Needs repair" ? " · Repair: " + money(item.repairCost) : " · S$0.00");
+    detail.textContent = item.label + " — " + item.condition + (item.condition === "Needs repair" ? " · Repair: " + money(item.repairCost) : " · " + money(0));
     row.appendChild(detail);
     if (item.comment) {
       const comment = document.createElement("p");
@@ -315,28 +327,41 @@ function createAccountBill(booking) {
     bill.appendChild(row)
   }
   if (inspection.comment) addBillLine(bill, "Staff summary", inspection.comment);
+  if (booking.appeal) {
+    addBillLine(bill, "Appeal receipt", booking.appealReference || "AP-" + booking.reference);
+    addBillLine(bill, "Appeal submitted", booking.appeal);
+    if (booking.appealResolved) {
+      addBillLine(bill, "Staff reply", booking.appealReply || "-");
+      addBillLine(bill, "Original bill", money(bookingBaseTotal(booking)));
+      addBillLine(bill, "Appeal deduction", "−" + money(booking.appealDeduction));
+    }
+  }
   total.className = "account-bill-total";
-  total.textContent = "Total due: " + money(bookingTotal(booking));
+  total.textContent = "Final amount due: " + money(bookingTotal(booking));
   bill.appendChild(total);
-  payment.className = booking.paid ? "msg success" : "note";
-  payment.textContent = booking.paid ? "Payment recorded: " + money(booking.paidAmount || bookingTotal(booking)) : "Payment is outstanding. Pay or appeal this bill below.";
+  payment.className = received ? "msg success" : "note";
+  payment.textContent = received ? "Payment received: " + money(booking.paidAmount || bookingTotal(booking)) : submitted ? "Payment submitted. Staff will confirm receipt." : booking.appeal && !booking.appealResolved ? "Your appeal is being reviewed. Payment will be available after staff sends the revised final bill." : booking.appealResolved ? "Staff sent the revised final bill. Please pay the updated amount below." : "Payment is outstanding. Pay or appeal this bill below.";
   bill.appendChild(payment);
   actions.className = "tools";
-  if (!booking.paid) {
+  if (!received && !submitted && !(booking.appeal && !booking.appealResolved)) {
     const pay = document.createElement("button");
     pay.className = "btn"; pay.type = "button"; pay.textContent = "Pay bill";
     pay.setAttribute("data-pay-reference", booking.reference);
     actions.appendChild(pay)
   }
-  else {
+  else if (received || submitted) {
     const paid = document.createElement("span");
-    paid.className = "status available"; paid.textContent = "Paid";
+    paid.className = "status " + (received ? "available" : "reserved");
+    paid.textContent = received ? "Received" : "Submitted";
     actions.appendChild(paid)
   }
-  if (booking.appeal) {
-    addBillLine(bill, "Appeal submitted", booking.appeal)
-  }
   else {
+    const underReview = document.createElement("span");
+    underReview.className = "status reserved";
+    underReview.textContent = "Appeal under review";
+    actions.appendChild(underReview)
+  }
+  if (!booking.appeal && !received && !submitted) {
     const appealButton = document.createElement("button"), appealForm = document.createElement("form"),
     appealLabel = document.createElement("label"), appealInput = document.createElement("textarea"), appealSubmit = document.createElement("button");
     appealButton.className = "btn alt"; appealButton.type = "button"; appealButton.textContent = "Appeal bill";
@@ -353,21 +378,26 @@ function createAccountBill(booking) {
   }
   bill.appendChild(actions);
   const note = document.createElement("p");
-  note.className = "small"; note.textContent = "Assignment prototype: payment and appeal status are saved in this browser.";
+  note.className = "small"; note.textContent = "Assignment prototype: payment submission, staff receipt confirmation and appeals are saved in this browser.";
   bill.appendChild(note);
   return bill
 }
 function showAccountReservation(user) {
   const list = document.getElementById("account-bookings-list"),
-  empty = document.getElementById("account-no-booking");
-  if (!list || !empty) return;
+  empty = document.getElementById("account-no-booking"),
+  historyList = document.getElementById("account-booking-history-list"),
+  historyEmpty = document.getElementById("account-no-history");
+  if (!list || !empty || !historyList || !historyEmpty) return;
   while (list.firstChild) list.removeChild(list.firstChild);
+  while (historyList.firstChild) historyList.removeChild(historyList.firstChild);
   const bookings = readBookings();
-  let count = 0;
+  let activeCount = 0, historyCount = 0;
   for (let i = bookings.length - 1; i >= 0; i--) {
     const booking = bookings[i];
     if (booking.email !== user.email) continue;
-    count++;
+    const state = bookingStatus(booking), isHistory = state !== "reserved" && state !== "rented";
+    if (isHistory) historyCount++;
+    else activeCount++;
     const card = document.createElement("article"),
     heading = document.createElement("h3"),
     status = document.createElement("p"),
@@ -381,9 +411,9 @@ function showAccountReservation(user) {
     card.className = "account-booking";
     heading.textContent = booking.carName;
     status.innerHTML = "<b>Status:</b> ";
-    const badge = document.createElement("span"), state = bookingStatus(booking);
-    badge.className = "status " + (booking.billIssued ? "available" : state);
-    badge.textContent = booking.billIssued ? "Bill issued" : state === "rented" ? "Rented out" : state === "returned" ? "Returned" : "Reserved";
+    const badge = document.createElement("span");
+    badge.className = "status " + state;
+    badge.textContent = state === "repairing" ? "Under repair" : booking.billIssued ? booking.billReceived || booking.paid ? "Bill received" : "Bill issued" : state === "rented" ? "Rented out" : state === "returned" ? "Returned" : state === "available" ? "Available" : "Reserved";
     status.appendChild(badge);
     pickup.innerHTML = "<b>Pickup date:</b> "; pickup.appendChild(document.createTextNode(booking.pickupDate || ""));
     returning.innerHTML = "<b>Return date:</b> "; returning.appendChild(document.createTextNode(booking.returnDate || ""));
@@ -399,13 +429,37 @@ function showAccountReservation(user) {
       cancel.setAttribute("data-cancel-reference", booking.reference);
       tools.appendChild(cancel)
     }
-    card.appendChild(heading); card.appendChild(status); card.appendChild(pickup); card.appendChild(returning);
-    card.appendChild(branch); card.appendChild(location); card.appendChild(receipt); card.appendChild(tools);
-    if (booking.billIssued) card.appendChild(createAccountBill(booking));
-    list.appendChild(card)
+    card.appendChild(heading); card.appendChild(status);
+    const bookingDetails = document.createElement("div");
+    bookingDetails.className = "account-booking-details";
+    bookingDetails.appendChild(pickup); bookingDetails.appendChild(returning);
+    bookingDetails.appendChild(branch); bookingDetails.appendChild(location); bookingDetails.appendChild(receipt); bookingDetails.appendChild(tools);
+    if (booking.billIssued) bookingDetails.appendChild(createAccountBill(booking));
+    const collapseDetails = isHistory || booking.billIssued && (booking.billReceived || booking.paid);
+    if (collapseDetails) {
+      const toggle = document.createElement("button"), showLabel = isHistory ? "Show booking history details" : "Show booking and paid bill details";
+      bookingDetails.id = "account-booking-details-" + booking.reference;
+      bookingDetails.hidden = true;
+      toggle.className = "btn alt account-booking-toggle";
+      toggle.type = "button";
+      toggle.textContent = showLabel;
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.setAttribute("aria-controls", bookingDetails.id);
+      toggle.addEventListener("click", function() {
+        bookingDetails.hidden = !bookingDetails.hidden;
+        const expanded = !bookingDetails.hidden;
+        toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+        toggle.textContent = expanded ? showLabel.replace("Show", "Hide") : showLabel
+      });
+      card.appendChild(toggle)
+    }
+    card.appendChild(bookingDetails);
+    (isHistory ? historyList : list).appendChild(card)
   }
-  empty.hidden = count > 0;
-  list.hidden = count === 0
+  empty.hidden = activeCount > 0;
+  list.hidden = activeCount === 0;
+  historyEmpty.hidden = historyCount > 0;
+  historyList.hidden = historyCount === 0
 }
 function getAccountNext() {
   const parts = window.location.search.substring(1).split("&");
@@ -503,42 +557,44 @@ if (accountPage) {
 }
 
 const cancelBookingsList = document.getElementById("account-bookings-list"),
+accountBookingsArea = document.getElementById("account-state"),
 cancelModal = document.getElementById("cancel-modal"),
 cancelYes = document.getElementById("cancel-yes"),
 cancelNo = document.getElementById("cancel-no");
 let pendingCancelReference = "", lastCancelButton = null;
-if (cancelBookingsList) {
-  cancelBookingsList.addEventListener("click", function(e) {
+if (accountBookingsArea) {
+  accountBookingsArea.addEventListener("click", function(e) {
     const target = e.target;
     if (target && target.getAttribute("data-pay-reference")) {
       const reference = target.getAttribute("data-pay-reference"), bookings = readBookings();
       let booking = null;
       for (let i = 0; i < bookings.length; i++) if (bookings[i].reference === reference) booking = bookings[i];
-      if (!booking || !booking.billIssued || booking.paid) return;
-      if (!window.confirm("Record payment of " + money(bookingTotal(booking)) + " for this assignment bill?")) return;
-      booking.paid = true; booking.paidAmount = bookingTotal(booking);
+      if (!booking || !booking.billIssued || booking.paid || booking.billReceived || booking.paymentSubmitted) return;
+      if (!window.confirm("Submit payment of " + money(bookingTotal(booking)) + " for this assignment bill? Staff will confirm receipt.")) return;
+      booking.paymentSubmitted = true; booking.paymentSubmittedAmount = bookingTotal(booking);
       saveBookings(bookings);
       const user = getCurrentAccount();
       if (user) showAccountReservation(user);
-      accountMessage("cancel-msg", "Payment recorded in the assignment prototype.");
+      accountMessage("cancel-msg", "Payment submitted. Staff will confirm receipt.");
       return
     }
     if (target && target.getAttribute("data-appeal-toggle")) {
-      const reference = target.getAttribute("data-appeal-toggle"), forms = cancelBookingsList.querySelectorAll("form[data-appeal-form]");
+      const reference = target.getAttribute("data-appeal-toggle"), forms = accountBookingsArea.querySelectorAll("form[data-appeal-form]");
       for (let i = 0; i < forms.length; i++) forms[i].hidden = forms[i].getAttribute("data-appeal-form") !== reference;
-      const form = cancelBookingsList.querySelector('form[data-appeal-form="' + reference + '"]');
+      const form = accountBookingsArea.querySelector('form[data-appeal-form="' + reference + '"]');
       if (form) form.querySelector("textarea").focus()
     }
   });
-  cancelBookingsList.addEventListener("submit", function(e) {
+  accountBookingsArea.addEventListener("submit", function(e) {
     const form = e.target, reference = form.getAttribute("data-appeal-form");
     if (!reference) return;
     e.preventDefault();
     const reason = form.querySelector("textarea").value.trim(), bookings = readBookings();
     if (!reason) return;
     for (let i = 0; i < bookings.length; i++) {
-      if (bookings[i].reference === reference && bookings[i].billIssued) {
+      if (bookings[i].reference === reference && bookings[i].billIssued && !bookings[i].paid && !bookings[i].billReceived && !bookings[i].paymentSubmitted && !bookings[i].appeal) {
         bookings[i].appeal = reason;
+        bookings[i].appealReference = "AP-" + bookings[i].reference;
         bookings[i].appealSubmittedAt = new Date().toISOString();
         saveBookings(bookings);
         const user = getCurrentAccount();
@@ -759,8 +815,9 @@ function markBookedCar() {
     carId = marker >= 0 ? href.substring(marker + 5) : "";
     if (!status || !carId) continue;
     const state = carStatus(carId);
-    status.className = "status " + state;
-    status.textContent = state === "rented" ? "Rented out" : state === "reserved" ? "Reserved" : state === "returned" ? "Returned" : "Available";
+    const customerState = state === "available" ? "available" : state === "rented" || state === "returned" ? "rented" : "not-available";
+    status.className = "status " + customerState;
+    status.textContent = customerState === "available" ? "Available" : customerState === "rented" ? "Rented out" : "Not available";
     if (link) {
       if (!link.getAttribute("data-available-label")) link.setAttribute("data-available-label", link.textContent);
       if (state !== "available") {
@@ -895,6 +952,7 @@ function addAdminActionButton(cell, carId, action, label, disabled, reference) {
   button.setAttribute("data-admin-action", action);
   button.setAttribute("data-car-id", carId);
   if (reference) button.setAttribute("data-booking-reference", reference);
+  if (action === "receive-bill" && disabled) button.title = "Available after the customer submits payment.";
   button.disabled = disabled;
   cell.appendChild(button)
 }
@@ -902,7 +960,7 @@ function renderAdminDashboard() {
   if (!adminRows) return;
   while (adminRows.firstChild) adminRows.removeChild(adminRows.firstChild);
   const bookings = readBookings();
-  let available = 0, reserved = 0, rented = 0, returned = 0;
+  let available = 0, reserved = 0, rented = 0, returned = 0, repairing = 0;
   for (const id in vehicle) {
     const car = vehicle[id];
     let booking = null;
@@ -917,6 +975,7 @@ function renderAdminDashboard() {
     if (state === "reserved") reserved++;
     if (state === "rented") rented++;
     if (state === "returned") returned++;
+    if (state === "repairing") repairing++;
     const row = document.createElement("tr"),
     name = document.createElement("td"),
     category = document.createElement("td"),
@@ -930,7 +989,7 @@ function renderAdminDashboard() {
     category.textContent = car.cat;
     rate.textContent = money(car.rate) + " / day";
     badge.className = "status " + state;
-    badge.textContent = state === "rented" ? "Rented out" : state === "reserved" ? "Reserved" : state === "returned" ? "Returned" : "Available";
+    badge.textContent = state === "rented" ? "Rented out" : state === "reserved" ? "Reserved" : state === "returned" ? "Returned" : state === "repairing" ? "Under repair" : "Available";
     statusCell.appendChild(badge);
     if (booking) {
       const email = document.createElement("span"), receipt = document.createElement("small");
@@ -956,8 +1015,19 @@ function renderAdminDashboard() {
     else if (state === "returned" && !booking.billIssued) {
       addAdminActionButton(actionCell, id, "inspect", "Inspection", false, booking.reference)
     }
-    else if (state === "returned" && booking.billIssued) {
-      actionCell.textContent = "Bill issued"
+    else if (booking && booking.billIssued) {
+      if (state === "returned") {
+        addAdminActionButton(actionCell, id, "make-available", "Make available", false, booking.reference);
+        addAdminActionButton(actionCell, id, "repair", "Repair", false, booking.reference)
+      }
+      else if (state === "repairing") addAdminActionButton(actionCell, id, "make-available", "Make available", false, booking.reference);
+      if (!booking.billReceived && !booking.paid) addAdminActionButton(actionCell, id, "receive-bill", "Received bill", !booking.paymentSubmitted, booking.reference)
+    }
+    for (let i = 0; i < bookings.length; i++) {
+      const appealBooking = bookings[i];
+      if (appealBooking.carId === id && appealBooking.appeal && !appealBooking.appealResolved && !appealBooking.billReceived && !appealBooking.paid) {
+        addAdminActionButton(actionCell, id, "appeal", "Review appeal", false, appealBooking.reference)
+      }
     }
     row.appendChild(name); row.appendChild(category); row.appendChild(rate); row.appendChild(statusCell); row.appendChild(customerCell); row.appendChild(dateCell); row.appendChild(actionCell);
     adminRows.appendChild(row)
@@ -966,26 +1036,29 @@ function renderAdminDashboard() {
   show("admin-reserved", reserved);
   show("admin-rented", rented);
   show("admin-returned", returned);
-  let rentTotal = 0, damageTotal = 0, paidTotal = 0, outstandingTotal = 0;
+  show("admin-repairing", repairing);
+  let rentTotal = 0, damageTotal = 0, totalDue = 0, paidTotal = 0, outstandingTotal = 0;
   for (let i = 0; i < bookings.length; i++) {
     const booking = bookings[i],
     rent = Number(booking.dailyRate || 0) * Number(booking.rentalDays || 0),
     damage = bookingDamageTotal(booking),
-    total = rent + damage,
-    paid = booking.paid ? Math.min(total, Number(booking.paidAmount || total)) : 0;
+    total = bookingTotal(booking),
+    received = booking.billReceived || booking.paid,
+    paid = received ? Math.min(total, Number(booking.paidAmount || total)) : 0;
     rentTotal += rent;
     damageTotal += damage;
+    totalDue += total;
     paidTotal += paid;
     outstandingTotal += Math.max(0, total - paid)
   }
-  show("admin-booking-car", bookings.length ? bookings.length + " saved reservation(s)" : "No saved reservations");
-  show("admin-booking-state", bookings.length ? "Fleet: " + reserved + " reserved, " + rented + " rented out, " + returned + " returned" : "No current bookings");
+  show("admin-booking-car", bookings.length ? bookings.length + " saved reservation(s)" : "No saved reservation");
+  show("admin-booking-state", bookings.length ? "Fleet: " + reserved + " reserved, " + rented + " rented out, " + returned + " returned, " + repairing + " under repair" : "No current bookings");
   show("admin-rent", money(rentTotal));
   show("admin-damage", money(damageTotal));
-  show("admin-total", money(rentTotal + damageTotal));
+  show("admin-total", money(totalDue));
   show("admin-paid", money(paidTotal));
   show("admin-outstanding", money(outstandingTotal));
-  show("admin-cost-note", "Cost totals across " + bookings.length + " saved reservation(s). Sample cars without a booking have no transaction record.")
+  show("admin-cost-note", "Total due and paid amounts include any appeal deductions. Customer payment submissions remain pending until staff confirms receipt.")
 }
 const adminActionModal = document.getElementById("admin-action-modal"),
 adminActionTitle = document.getElementById("admin-action-title"),
@@ -995,10 +1068,68 @@ adminActionConfirm = document.getElementById("admin-action-confirm"),
 adminActionCancel = document.getElementById("admin-action-cancel"),
 inspectionModal = document.getElementById("inspection-modal"),
 inspectionForm = document.getElementById("inspection-form"),
-inspectionChecklist = document.getElementById("inspection-checklist");
+inspectionChecklist = document.getElementById("inspection-checklist"),
+inspectionEntry = document.getElementById("inspection-entry"),
+inspectionBillPreview = document.getElementById("inspection-bill-preview"),
+inspectionBillDetails = document.getElementById("inspection-bill-details"),
+inspectionBillTotal = document.getElementById("inspection-bill-total"),
+inspectionProceed = document.getElementById("inspection-proceed"),
+inspectionBack = document.getElementById("inspection-back");
+const appealModal = document.getElementById("appeal-modal"),
+appealForm = document.getElementById("appeal-form"),
+appealInfo = document.getElementById("appeal-booking-info"),
+appealReceiptDetails = document.getElementById("appeal-receipt-details"),
+appealCustomerMessage = document.getElementById("appeal-customer-message"),
+appealReply = document.getElementById("appeal-reply"),
+appealDeduction = document.getElementById("appeal-deduction"),
+appealPreview = document.getElementById("appeal-cost-preview"),
+appealMessage = document.getElementById("appeal-form-message"),
+appealClose = document.getElementById("appeal-close");
 let pendingAdminAction = null,
 lastAdminActionButton = null,
-pendingInspectionReference = "";
+pendingInspectionReference = "",
+pendingAppealReference = "",
+pendingInspection = null;
+function updateAppealCostPreview() {
+  const booking = findBooking(pendingAppealReference);
+  if (!booking || !appealDeduction || !appealPreview) return;
+  let deduction = Number(appealDeduction.value);
+  if (isNaN(deduction) || deduction < 0) deduction = 0;
+  if (deduction > bookingBaseTotal(booking)) deduction = bookingBaseTotal(booking);
+  appealPreview.textContent = "Original bill: " + money(bookingBaseTotal(booking)) + " · Deduction: " + money(deduction) + " · Revised total: " + money(Math.max(0, bookingBaseTotal(booking) - deduction))
+}
+function openAppeal(reference) {
+  const booking = findBooking(reference);
+  if (!appealModal || !booking || !booking.appeal || booking.appealResolved || booking.billReceived || booking.paid) return;
+  while (appealReceiptDetails.firstChild) appealReceiptDetails.removeChild(appealReceiptDetails.firstChild);
+  addBillLine(appealReceiptDetails, "Appeal receipt", booking.appealReference || "AP-" + booking.reference);
+  addBillLine(appealReceiptDetails, "Booking receipt", booking.reference);
+  if (booking.appealSubmittedAt) addBillLine(appealReceiptDetails, "Appeal submitted", new Date(booking.appealSubmittedAt).toLocaleString());
+  addBillLine(appealReceiptDetails, "Customer", booking.email || "-");
+  addBillLine(appealReceiptDetails, "Car", booking.carName || "-");
+  addBillLine(appealReceiptDetails, "Rental dates", (booking.pickupDate || "-") + " to " + (booking.returnDate || "-"));
+  addBillLine(appealReceiptDetails, "Pickup branch", booking.pickupBranch || "-");
+  addBillLine(appealReceiptDetails, "Rental charge", money(Number(booking.dailyRate || 0) * Number(booking.rentalDays || 0)));
+  const items = booking.inspection && booking.inspection.items ? booking.inspection.items : [];
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    addBillLine(appealReceiptDetails, item.label, item.condition + (item.condition === "Needs repair" ? " · Repair: " + money(item.repairCost) : " · " + money(0)));
+    if (item.comment) addBillLine(appealReceiptDetails, "Staff comment", item.comment);
+  }
+  if (booking.inspection && booking.inspection.comment) addBillLine(appealReceiptDetails, "Staff summary", booking.inspection.comment);
+  addBillLine(appealReceiptDetails, "Original final bill", money(bookingBaseTotal(booking)));
+  appealInfo.textContent = (booking.carName || "Car") + " · " + (booking.email || "") + " · " + booking.reference;
+  appealCustomerMessage.textContent = booking.appeal;
+  appealReply.value = "";
+  appealDeduction.value = "0";
+  appealDeduction.max = String(bookingBaseTotal(booking));
+  appealMessage.hidden = true;
+  appealMessage.textContent = "";
+  pendingAppealReference = reference;
+  updateAppealCostPreview();
+  appealModal.hidden = false;
+  appealReply.focus()
+}
 const inspectionItems = [
   "Exterior and bodywork",
   "Windscreen and glass",
@@ -1040,10 +1171,11 @@ function buildInspectionChecklist() {
     repairRadio.type = "radio"; repairRadio.name = "inspection-condition-" + i; repairRadio.value = "repair"; repairRadio.required = true;
     repairLabel.appendChild(repairRadio); repairLabel.appendChild(document.createTextNode(" Needs repair"));
     choices.appendChild(goodLabel); choices.appendChild(repairLabel);
-    costField.className = "field inspection-cost"; costField.hidden = true;
+    costField.className = "field inspection-cost";
     costLabel.htmlFor = "inspection-cost-" + i; costLabel.textContent = "Repair cost (S$)";
-    costInput.id = "inspection-cost-" + i; costInput.type = "number"; costInput.min = "0"; costInput.step = "0.01"; costInput.value = "0";
+    costInput.id = "inspection-cost-" + i; costInput.type = "number"; costInput.min = "0"; costInput.step = "0.01"; costInput.value = ""; costInput.inputMode = "decimal"; costInput.disabled = true;
     costField.appendChild(costLabel); costField.appendChild(costInput);
+    choices.appendChild(costField);
     commentField.className = "field inspection-comment";
     commentLabel.htmlFor = "inspection-comment-" + i; commentLabel.textContent = "Staff comment";
     commentInput.id = "inspection-comment-" + i; commentInput.rows = 2; commentInput.maxLength = 500;
@@ -1051,27 +1183,62 @@ function buildInspectionChecklist() {
     photoField.className = "field inspection-photo";
     photoLabel.htmlFor = "inspection-photo-" + i; photoLabel.textContent = "Attach photo (optional)";
     photoInput.id = "inspection-photo-" + i; photoInput.type = "file"; photoInput.accept = "image/*";
-    photoField.appendChild(photoLabel); photoField.appendChild(photoInput);
+    const photoRemoveButton = document.createElement("button");
+    photoRemoveButton.type = "button"; photoRemoveButton.className = "btn alt inspection-photo-remove"; photoRemoveButton.textContent = "Remove photo"; photoRemoveButton.hidden = true;
+    photoField.appendChild(photoLabel); photoField.appendChild(photoInput); photoField.appendChild(photoRemoveButton);
+    photoInput.addEventListener("change", function() { photoRemoveButton.hidden = photoInput.files.length === 0 });
+    photoRemoveButton.addEventListener("click", function() { photoInput.value = ""; photoRemoveButton.hidden = true; photoInput.focus() });
     function toggleCost() {
       const needsRepair = repairRadio.checked;
-      costField.hidden = !needsRepair;
+      costInput.disabled = !needsRepair;
       costInput.required = needsRepair
     }
     goodRadio.addEventListener("change", toggleCost);
     repairRadio.addEventListener("change", toggleCost);
-    group.appendChild(legend); group.appendChild(choices); group.appendChild(costField); group.appendChild(commentField); group.appendChild(photoField);
+    group.appendChild(legend); group.appendChild(choices); group.appendChild(commentField); group.appendChild(photoField);
     inspectionChecklist.appendChild(group)
   }
+}
+function renderInspectionBillPreview(booking, inspection) {
+  while (inspectionBillDetails.firstChild) inspectionBillDetails.removeChild(inspectionBillDetails.firstChild);
+  addBillLine(inspectionBillDetails, "Customer", booking.customerName + " · " + booking.email);
+  addBillLine(inspectionBillDetails, "Car", booking.carName);
+  addBillLine(inspectionBillDetails, "Receipt", booking.reference);
+  addBillLine(inspectionBillDetails, "Pickup branch", booking.pickupBranch || "-");
+  addBillLine(inspectionBillDetails, "Collection point", booking.pickupLocation || pickupLocation(booking.pickupBranch));
+  addBillLine(inspectionBillDetails, "Rental dates", (booking.pickupDate || "-") + " to " + (booking.returnDate || "-"));
+  const rent = Number(booking.dailyRate || 0) * Number(booking.rentalDays || 0);
+  addBillLine(inspectionBillDetails, "Rental charge", money(booking.dailyRate) + " x " + booking.rentalDays + " day(s) = " + money(rent));
+  let repairTotal = 0;
+  for (let i = 0; i < inspection.items.length; i++) {
+    const item = inspection.items[i], row = document.createElement("div"), detail = document.createElement("p");
+    row.className = "bill-item";
+    detail.textContent = item.label + " — " + item.condition + " — " + money(item.repairCost);
+    row.appendChild(detail);
+    if (item.comment) {
+      const comment = document.createElement("p");
+      comment.className = "bill-comment"; comment.textContent = "Staff comment: " + item.comment; row.appendChild(comment)
+    }
+    inspectionBillDetails.appendChild(row);
+    repairTotal += Number(item.repairCost || 0)
+  }
+  if (inspection.comment) addBillLine(inspectionBillDetails, "Staff summary", inspection.comment);
+  addBillLine(inspectionBillDetails, "Repair total", money(repairTotal));
+  inspectionBillTotal.textContent = "Staff total cost: " + money(rent + repairTotal)
 }
 function openInspection(reference) {
   const booking = findBooking(reference);
   if (!booking || bookingStatus(booking) !== "returned" || booking.billIssued) return;
   pendingInspectionReference = reference;
-  const details = document.getElementById("inspection-booking-info");
+  pendingInspection = null;
+  const details = document.getElementById("inspection-booking-info"),
+  general = document.getElementById("inspection-general-comment"),
+  message = document.getElementById("inspection-message");
   if (details) details.textContent = booking.carName + " · " + booking.email + " · Receipt " + booking.reference;
-  const general = document.getElementById("inspection-general-comment"), message = document.getElementById("inspection-message");
   if (general) general.value = "";
   if (message) { message.hidden = true; message.textContent = "" }
+  inspectionEntry.hidden = false;
+  inspectionBillPreview.hidden = true;
   buildInspectionChecklist();
   inspectionModal.hidden = false;
   const firstChoice = inspectionChecklist.querySelector("input[type=radio]");
@@ -1114,8 +1281,12 @@ if (inspectionForm) {
     }
     const items = [];
     for (let i = 0; i < inspectionItems.length; i++) {
-      const selected = document.querySelector('input[name="inspection-condition-' + i + '"]:checked'),
-      needsRepair = selected.value === "repair";
+      const selected = document.querySelector('input[name="inspection-condition-' + i + '"]:checked');
+      if (!selected) {
+        showInspectionMessage("Choose a condition for every checklist item.");
+        return
+      }
+      const needsRepair = selected.value === "repair";
       items.push({
         label: inspectionItems[i],
         condition: needsRepair ? "Needs repair" : "Good condition",
@@ -1124,38 +1295,74 @@ if (inspectionForm) {
         images: []
       })
     }
-    readInspectionPhotos(photoFiles, 0, [], function(photos) {
+    const inspection = {
+      items: items,
+      comment: document.getElementById("inspection-general-comment").value.trim(),
+      completedAt: new Date().toISOString()
+    };
+    pendingInspection = { reference: pendingInspectionReference, inspection: inspection, photos: photoFiles };
+    renderInspectionBillPreview(booking, inspection);
+    inspectionEntry.hidden = true;
+    inspectionBillPreview.hidden = false;
+    inspectionProceed.focus()
+  })
+}
+if (inspectionBack && inspectionBillPreview && inspectionEntry) {
+  inspectionBack.addEventListener("click", function() {
+    inspectionBillPreview.hidden = true;
+    inspectionEntry.hidden = false;
+    if (pendingInspection) pendingInspection = null;
+    const button = document.getElementById("inspection-final-bill");
+    if (button) button.focus()
+  })
+}
+if (inspectionProceed && inspectionBillPreview) {
+  inspectionProceed.addEventListener("click", function() {
+    if (!pendingInspection) return;
+    const booking = findBooking(pendingInspection.reference);
+    if (!booking || bookingStatus(booking) !== "returned" || booking.billIssued) {
+      inspectionBillPreview.hidden = true;
+      inspectionEntry.hidden = false;
+      showInspectionMessage("This returned booking is no longer waiting for inspection.");
+      return
+    }
+    readInspectionPhotos(pendingInspection.photos, 0, [], function(photos) {
       if (!photos) {
-        showInspectionMessage("A photo could not be read. Please choose it again.");
+        inspectionBillPreview.hidden = true;
+        inspectionEntry.hidden = false;
+        showInspectionMessage("A photo could not be read. Choose it again and review the bill.");
         return
       }
-      for (let i = 0; i < photos.length; i++) items[photos[i].itemIndex].images.push({ name: photos[i].name, data: photos[i].data });
+      for (let i = 0; i < photos.length; i++) pendingInspection.inspection.items[photos[i].itemIndex].images.push({ name: photos[i].name, data: photos[i].data });
       const savedBookings = readBookings();
       let bookingIndex = -1;
       for (let i = 0; i < savedBookings.length; i++) {
-        if (savedBookings[i].reference === pendingInspectionReference) { bookingIndex = i; break }
+        if (savedBookings[i].reference === pendingInspection.reference) { bookingIndex = i; break }
       }
       if (bookingIndex < 0) {
+        inspectionBillPreview.hidden = true;
+        inspectionEntry.hidden = false;
         showInspectionMessage("The reservation could not be found. Close this window and refresh the staff page.");
         return
       }
-      savedBookings[bookingIndex].inspection = {
-        items: items,
-        comment: document.getElementById("inspection-general-comment").value.trim(),
-        completedAt: new Date().toISOString()
-      };
+      savedBookings[bookingIndex].inspection = pendingInspection.inspection;
       savedBookings[bookingIndex].billIssued = true;
-      savedBookings[bookingIndex].status = "available";
+      savedBookings[bookingIndex].billReceived = false;
+      savedBookings[bookingIndex].paymentSubmitted = false;
+      savedBookings[bookingIndex].status = "returned";
       try {
         saveBookings(savedBookings);
         inspectionModal.hidden = true;
         pendingInspectionReference = "";
+        pendingInspection = null;
         renderAdminDashboard();
-        accountMessage("admin-action-msg", "Final bill created and added to the customer’s account. The car is available again.");
+        accountMessage("admin-action-msg", "Final bill issued. Use Make available when the car is ready, and Received bill to record payment.");
         const message = document.getElementById("admin-action-msg");
         if (message) message.className = "msg success"
       }
       catch (err) {
+        inspectionBillPreview.hidden = true;
+        inspectionEntry.hidden = false;
         showInspectionMessage("The bill could not be saved. Use VS Code Live Server and try again.")
       }
     })
@@ -1168,6 +1375,57 @@ if (inspectionClose && inspectionModal) {
     pendingInspectionReference = ""
   })
 }
+if (appealDeduction) appealDeduction.addEventListener("input", updateAppealCostPreview);
+if (appealClose && appealModal) {
+  appealClose.addEventListener("click", function() {
+    appealModal.hidden = true;
+    pendingAppealReference = ""
+  })
+}
+if (appealForm) {
+  appealForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+    const reply = appealReply.value.trim(),
+    rawDeduction = appealDeduction.value,
+    deduction = Number(rawDeduction),
+    bookings = readBookings();
+    let index = -1;
+    for (let i = 0; i < bookings.length; i++) if (bookings[i].reference === pendingAppealReference) { index = i; break }
+    const booking = index >= 0 ? bookings[index] : null;
+    if (!booking || !booking.appeal || booking.appealResolved || booking.billReceived || booking.paid) {
+      appealMessage.textContent = "This appeal is no longer waiting for a staff response.";
+      appealMessage.hidden = false;
+      return
+    }
+    if (!reply || rawDeduction === "" || isNaN(deduction) || deduction < 0 || deduction > bookingBaseTotal(booking)) {
+      appealMessage.textContent = "Enter a reply and a deduction from zero up to the original bill total.";
+      appealMessage.hidden = false;
+      return
+    }
+    booking.appealReply = reply;
+    booking.appealDeduction = deduction;
+    booking.appealResolved = true;
+    booking.appealRespondedAt = new Date().toISOString();
+    booking.billReceived = false;
+    booking.paid = false;
+    booking.paidAmount = 0;
+    booking.paymentSubmitted = false;
+    booking.paymentSubmittedAmount = 0;
+    try {
+      saveBookings(bookings);
+      appealModal.hidden = true;
+      pendingAppealReference = "";
+      renderAdminDashboard();
+      accountMessage("admin-action-msg", "Revised final bill sent. The customer can now pay the updated amount from My Account.");
+      const message = document.getElementById("admin-action-msg");
+      if (message) message.className = "msg success"
+    }
+    catch (err) {
+      appealMessage.textContent = "The revised final bill could not be saved. Please try again.";
+      appealMessage.hidden = false
+    }
+  })
+}
 if (adminRows && adminActionModal) {
   adminRows.addEventListener("click", function(e) {
     const button = e.target;
@@ -1177,15 +1435,19 @@ if (adminRows && adminActionModal) {
     reference = button.getAttribute("data-booking-reference");
     if (!action || !carId || !reference) return;
     lastAdminActionButton = button;
+    if (action === "appeal") {
+      openAppeal(reference);
+      return
+    }
     if (action === "inspect") {
       openInspection(reference);
       return
     }
     pendingAdminAction = { action: action, carId: carId, reference: reference };
-    adminActionLabel.textContent = action === "rent" ? "CAR HANDOVER" : action === "return" ? "CAR RETURN" : "CANCEL RESERVATION";
-    adminActionTitle.textContent = action === "rent" ? "Mark this car as rented out?" : action === "return" ? "Mark this car as returned?" : "Cancel this reservation?";
-    adminActionCopy.textContent = action === "rent" ? "Confirm that the customer has collected the car. Its status will change from Reserved to Rented out." : action === "return" ? "Confirm that the customer has returned this car. An inspection action will then appear." : "This will remove the reservation and make the car available again for customers.";
-    adminActionConfirm.textContent = action === "rent" ? "Yes, mark rented out" : action === "return" ? "Yes, mark returned" : "Yes, cancel reservation";
+    adminActionLabel.textContent = action === "rent" ? "CAR HANDOVER" : action === "return" ? "CAR RETURN" : action === "cancel" ? "CANCEL RESERVATION" : action === "make-available" || action === "repair" ? "FLEET STATUS" : "BILL RECEIPT";
+    adminActionTitle.textContent = action === "rent" ? "Mark this car as rented out?" : action === "return" ? "Mark this car as returned?" : action === "cancel" ? "Cancel this reservation?" : action === "make-available" ? "Make this car available?" : action === "repair" ? "Mark this car under repair?" : "Confirm the bill was received?";
+    adminActionCopy.textContent = action === "rent" ? "Confirm that the customer has collected the car. Its status will change from Reserved to Rented out." : action === "return" ? "Confirm that the customer has returned this car. An inspection action will then appear." : action === "cancel" ? "This will remove the reservation and make the car available again for customers." : action === "make-available" ? "The car will become available for new customer bookings." : action === "repair" ? "The car will remain unavailable to customers while staff completes the repair. Use Make available when it is ready." : "This records the full bill as received and adds it to the paid total in the cost report.";
+    adminActionConfirm.textContent = action === "rent" ? "Yes, mark rented out" : action === "return" ? "Yes, mark returned" : action === "cancel" ? "Yes, cancel reservation" : action === "make-available" ? "Yes, make available" : action === "repair" ? "Yes, mark under repair" : "Yes, received bill";
     adminActionModal.hidden = false;
     adminActionConfirm.focus()
   })
@@ -1207,18 +1469,26 @@ if (adminActionConfirm && adminActionModal) {
         if (bookings[i].reference === reference && bookings[i].carId === pendingAdminAction.carId) { index = i; break }
       }
       const booking = index >= 0 ? bookings[index] : null,
-      state = booking ? bookingStatus(booking) : "available";
-      if (!booking || action === "rent" && state !== "reserved" || action === "return" && state !== "rented" || action === "cancel" && state !== "reserved") {
+      state = booking ? bookingStatus(booking) : "available",
+      validAction = booking && (action === "rent" && state === "reserved" || action === "return" && state === "rented" || action === "cancel" && state === "reserved" || action === "make-available" && (state === "returned" || state === "repairing") && booking.billIssued || action === "repair" && state === "returned" && booking.billIssued || action === "receive-bill" && booking.billIssued && booking.paymentSubmitted && !booking.billReceived && !booking.paid);
+      if (!validAction) {
         throw new Error("This reservation status has changed. Refresh the fleet and try again.")
       }
       if (action === "rent") booking.status = "rented";
       else if (action === "return") booking.status = "returned";
+      else if (action === "make-available") booking.status = "available";
+      else if (action === "repair") booking.status = "repairing";
+      else if (action === "receive-bill") {
+        booking.billReceived = true;
+        booking.paid = true;
+        booking.paidAmount = bookingTotal(booking)
+      }
       else bookings.splice(index, 1);
       saveBookings(bookings);
       adminActionModal.hidden = true;
       pendingAdminAction = null;
       renderAdminDashboard();
-      accountMessage("admin-action-msg", action === "rent" ? "Car marked as rented out." : action === "return" ? "Car marked as returned. The inspection action is now available." : "Reservation cancelled. The car is now available.");
+      accountMessage("admin-action-msg", action === "rent" ? "Car marked as rented out." : action === "return" ? "Car marked as returned. The inspection action is now available." : action === "cancel" ? "Reservation cancelled. The car is now available." : action === "make-available" ? "Car is now available for customer bookings." : action === "repair" ? "Car marked under repair and unavailable for new bookings." : "Bill receipt recorded and added to the paid total.");
       const message = document.getElementById("admin-action-msg");
       if (message) message.className = "msg success"
     }
@@ -1240,6 +1510,10 @@ document.addEventListener("keydown", function(e) {
   if (e.key === "Escape" && inspectionModal && !inspectionModal.hidden) {
     inspectionModal.hidden = true;
     pendingInspectionReference = ""
+  }
+  if (e.key === "Escape" && appealModal && !appealModal.hidden) {
+    appealModal.hidden = true;
+    pendingAppealReference = ""
   }
 });
 if (adminRows) {
@@ -1397,7 +1671,7 @@ if (form) {
       message.hidden = true;
       return true
     }
-    const label = state === "reserved" ? "reserved" : state === "returned" ? "returned and awaiting inspection" : "rented out";
+    const label = state === "reserved" ? "reserved" : state === "repairing" ? "under repair" : state === "returned" ? "returned and awaiting inspection" : "rented out";
     message.textContent = (vehicle[carId] ? vehicle[carId].name : "This car") + " is not available; it is currently " + label + ". Please choose another car.";
     message.hidden = false;
     return false
@@ -1717,7 +1991,7 @@ function renderBill() {
   show("bill-damage", money(damage));
   show("bill-total", money(rent + damage));
   const payButton = document.getElementById("pay-btn");
-  if (payButton) payButton.disabled = !!booking.paid
+  if (payButton) payButton.disabled = !!(booking.paid || booking.billReceived || booking.paymentSubmitted)
 }
 if (billSelect) {
   billSelect.addEventListener("change", renderBill);
@@ -1736,12 +2010,11 @@ if (pay) {
       return
     }
     const amount = Number(document.getElementById("bill-total").textContent.replace(/[^0-9.]/g, ""));
-    booking.paid = true;
-    booking.paidAmount = amount;
-    if (bookingStatus(booking) === "reserved") booking.status = "rented";
+    booking.paymentSubmitted = true;
+    booking.paymentSubmittedAmount = amount;
     try {
       saveBookings(bookings);
-      show("pay-msg", "Payment marked paid in this assignment prototype.");
+      show("pay-msg", "Payment submitted. Staff will confirm receipt.");
       pay.disabled = true
     }
     catch (err) {
