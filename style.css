@@ -1398,7 +1398,7 @@ p {
 .pickup-address span{color:#40536e}
 .pickup-note{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:24px;padding:18px 20px;border-left:4px solid #ff4f3d;border-radius:8px;background:#fff;color:#40536e}
 .pickup-note b{color:#102548}
-.sg-map{position:relative;overflow:hidden;width:100%;aspect-ratio:1216/681;border:1px solid #d6e1e8;border-radius:16px;background:#eaf3f7}
+.sg-map{position:relative;overflow:hidden;width:100%;aspect-ratio:1752/897;border:1px solid #d6e1e8;border-radius:16px;background:#eaf3f7}
 .sg-map-img{display:block;width:100%;height:100%;object-fit:cover}
 .map-pin{position:absolute;z-index:2;display:flex;align-items:center;justify-content:center;width:27px;height:27px;border:2px solid #fff;border-radius:50%;background:#e34333;box-shadow:0 2px 8px #10254877;color:#fff;font-size:9px;font-weight:bold;transform:translate(-50%,-50%)}
 .map-caption{position:absolute;left:16px;bottom:14px;z-index:3;display:flex;align-items:center;gap:9px;padding:10px 13px;border:1px solid #e8e1d8;border-radius:8px;background:#fff;color:#40536e;font-size:13px;box-shadow:0 2px 8px #10254822}
