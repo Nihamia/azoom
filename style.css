@@ -1417,3 +1417,28 @@ p {
 .location-note a{color:#102548;text-decoration:underline}
 @media(max-width:900px){.pickup-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.pickup-grid,.return-list{grid-template-columns:1fr}.pickup-pic{height:200px}.map-pin{width:23px;height:23px;font-size:8px}.map-caption{left:8px;bottom:8px;padding:7px 9px;font-size:11px}}
+
+
+/* Homepage sample reviews */
+.review-section{background:#fff}
+.review-viewport{overflow:hidden}
+.review-track{display:flex;width:200%;transition:transform .45s ease}
+.review-page{flex:0 0 50%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.review-card{display:flex;flex-direction:column;align-items:center;min-height:310px;padding:24px 22px;border:1px solid #e8e1d8;border-radius:14px;background:#fff;box-shadow:0 10px 24px #1025480b;text-align:center}
+.review-avatar{width:92px;height:92px;flex:0 0 92px;border:3px solid #fff;border-radius:50%;object-fit:cover;object-position:center 25%;box-shadow:0 0 0 1px #e8e1d8}
+.review-card h3{margin:14px 0 6px;color:#102548;font-size:19px}
+.review-stars{margin-bottom:12px;color:#e4a72e;font-size:21px;letter-spacing:3px;line-height:1}
+.review-card p{margin:0;color:#40536e;font-size:15px}
+.review-avatar-empty{position:relative;display:block;overflow:hidden;background:#f1ece5;box-shadow:0 0 0 1px #e8e1d8}
+.review-avatar-empty:before{position:absolute;top:18px;left:31px;width:24px;height:24px;border:2px solid #9aa6b4;border-radius:50%;content:""}
+.review-avatar-empty:after{position:absolute;bottom:13px;left:20px;width:46px;height:24px;border:2px solid #9aa6b4;border-bottom:0;border-radius:26px 26px 0 0;content:""}
+.review-controls{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:22px}
+.review-arrow{display:flex;align-items:center;justify-content:center;width:42px;height:42px;border:1px solid #d8dce2;border-radius:50%;background:#fff;color:#102548;font-size:20px;cursor:pointer}
+.review-arrow:hover:not(:disabled){border-color:#ff4f3d;color:#ff4f3d}
+.review-arrow:disabled{opacity:.45;cursor:default}
+.review-dots{display:flex;gap:8px}
+.review-dot{width:10px;height:10px;padding:0;border:0;border-radius:50%;background:#ccd3dc;cursor:pointer}
+.review-dot.active{background:#ff4f3d}
+.review-count{min-width:34px;color:#40536e;font-size:14px}
+@media(max-width:900px){.review-page{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.review-page{grid-template-columns:1fr}.review-card{min-height:250px}}

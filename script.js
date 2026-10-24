@@ -2071,3 +2071,38 @@ window.addEventListener("storage", function(e) {
     }
   }
 });
+
+/* Homepage review carousel */
+const reviewTrack = document.getElementById("review-track");
+if (reviewTrack) {
+  const reviewPages = reviewTrack.querySelectorAll(".review-page");
+  const reviewDots = document.querySelectorAll(".review-dot");
+  const reviewPrev = document.getElementById("review-prev");
+  const reviewNext = document.getElementById("review-next");
+  const reviewCount = document.getElementById("review-count");
+  let currentReviewPage = 0;
+
+  function showReviewPage(page) {
+    currentReviewPage = page;
+    reviewTrack.style.transform = "translateX(-" + (page * 50) + "%)";
+    reviewPrev.disabled = page === 0;
+    reviewNext.disabled = page === reviewPages.length - 1;
+    for (let i = 0; i < reviewDots.length; i++) {
+      reviewDots[i].classList.toggle("active", i === page);
+      reviewDots[i].setAttribute("aria-pressed", i === page ? "true" : "false");
+    }
+    reviewCount.textContent = (page + 1) + " / " + reviewPages.length;
+  }
+
+  reviewPrev.addEventListener("click", function() {
+    if (currentReviewPage > 0) showReviewPage(currentReviewPage - 1);
+  });
+  reviewNext.addEventListener("click", function() {
+    if (currentReviewPage < reviewPages.length - 1) showReviewPage(currentReviewPage + 1);
+  });
+  for (let i = 0; i < reviewDots.length; i++) {
+    reviewDots[i].addEventListener("click", function() {
+      showReviewPage(i);
+    });
+  }
+}
