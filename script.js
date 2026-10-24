@@ -2106,3 +2106,26 @@ if (reviewTrack) {
     });
   }
 }
+
+const navToggles = document.querySelectorAll(".nav-toggle");
+for (let i = 0; i < navToggles.length; i++) {
+  navToggles[i].addEventListener("click", function() {
+    const menu = document.getElementById(navToggles[i].getAttribute("aria-controls"));
+    const expanded = navToggles[i].getAttribute("aria-expanded") === "true";
+    navToggles[i].setAttribute("aria-expanded", expanded ? "false" : "true");
+    navToggles[i].setAttribute("aria-label", expanded ? "Open navigation menu" : "Close navigation menu");
+    if (menu) menu.classList.toggle("open", !expanded);
+  });
+}
+const menuLinks = document.querySelectorAll(".nav-menu a");
+for (let i = 0; i < menuLinks.length; i++) {
+  menuLinks[i].addEventListener("click", function() {
+    const menu = menuLinks[i].closest(".nav-menu");
+    const toggle = menu ? document.querySelector('[aria-controls="' + menu.id + '"]') : null;
+    if (menu && toggle) {
+      menu.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.setAttribute("aria-label", "Open navigation menu");
+    }
+  });
+}
