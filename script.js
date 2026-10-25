@@ -723,12 +723,25 @@ function show(id, value) {
     el.textContent = value
   }
 }
+function pickupBranchName(branch) {
+  const value = String(branch || "").toLowerCase();
+  if (value.indexOf("changi") >= 0 || value === "east") return "Changi Airport";
+  if (value.indexOf("westgate") >= 0) return "Westgate (Jurong East)";
+  if (value.indexOf("woodlands") >= 0 || value === "west" || value.indexOf("checkpoint") >= 0) return "Woodlands";
+  if (value.indexOf("nex") >= 0 || value.indexOf("serangoon") >= 0) return "NEX (Serangoon)";
+  if (value.indexOf("citysquare") >= 0 || value.indexOf("city square") >= 0) return "CitySquare (Central)";
+  if (value.indexOf("tiong bahru") >= 0) return "Tiong Bahru Plaza (Central)";
+  return branch || "Woodlands"
+}
 function pickupLocation(branch) {
   const value = String(branch || "").toLowerCase();
-  if (value.indexOf("east") >= 0 || value.indexOf("changi") >= 0) {
-    return "Changi Airport Terminal 1 Car Park, AZoom collection bay"
-  }
-  return "Woodlands Checkpoint, designated AZoom collection bay"
+  if (value.indexOf("changi") >= 0 || value === "east") return "Terminal 1 Car Park A, Level B2";
+  if (value.indexOf("westgate") >= 0) return "Westgate Car Park C, Level B2";
+  if (value.indexOf("woodlands") >= 0 || value === "west" || value.indexOf("checkpoint") >= 0) return "Causeway Point Car Park A, Level B1";
+  if (value.indexOf("nex") >= 0 || value.indexOf("serangoon") >= 0) return "NEX Car Park, Level B2";
+  if (value.indexOf("citysquare") >= 0 || value.indexOf("city square") >= 0) return "CitySquare Mall Car Park, Level B2";
+  if (value.indexOf("tiong bahru") >= 0) return "Tiong Bahru Plaza Car Park, Level B2";
+  return "Causeway Point Car Park A, Level B1"
 }
 function validCardNumber(value) {
   return /^[0-9]{16}$/.test(value)
@@ -1604,7 +1617,7 @@ if (summary && window.location.search.indexOf("?search=1") === 0) {
         groups[i].hidden = groupShown === 0
       }
       const category = request.category === "city-ev" ? "City EV" : request.category === "family-ev" ? "Family EV" : "Premium EV",
-      branch = request.pickupBranch === "east" ? "East - Changi Airport" : "West branch";
+      branch = pickupBranchName(request.pickupBranch);
       summary.textContent = shown ? "Showing " + shown + " available " + category + " car(s) for " + request.pickupDate + " to " + request.returnDate + ", pickup at " + branch + "." : "No available " + category + " cars match this search. Try another category or change your dates.";
       summary.hidden = false
     }
@@ -1864,7 +1877,7 @@ if (form) {
       return
     }
     cardError.hidden = true;
-    const branchLabel = branch.options[branch.selectedIndex].textContent,
+    const branchLabel = pickupBranchName(branch.value),
     booking = {
       reference: "AZ-" + String(Date.now()),
       customerName: document.getElementById("customer-name").value,
@@ -1875,7 +1888,7 @@ if (form) {
       category: car.cat,
       dailyRate: car.rate,
       pickupBranch: branchLabel,
-      pickupLocation: pickupLocation(branchLabel),
+      pickupLocation: pickupLocation(branch.value),
       pickupDate: start.value,
       returnDate: end.value,
       rentalDays: days,
