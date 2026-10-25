@@ -232,34 +232,34 @@ function updateAccountLink() {
   }
   catch (err) {
   }
+  const currentAccount = getCurrentAccount();
   const staffLinks = document.querySelectorAll(".staff-only-link");
   for (let i = 0; i < staffLinks.length; i++) {
     staffLinks[i].hidden = !staffSignedIn
   }
   const link = document.getElementById("account-link");
-  if (!link) return;
-  if (staffSignedIn) {
-    link.textContent = "Sign out";
-    link.href = "#";
-    link.onclick = function(e) {
+  if (link) {
+    link.textContent = staffSignedIn || currentAccount ? "My Account" : "Login / Signup";
+    link.href = "account.html";
+    link.onclick = null
+  }
+  const logout = document.getElementById("logout-link");
+  if (logout) {
+    logout.hidden = !(staffSignedIn || currentAccount);
+    logout.onclick = function(e) {
       e.preventDefault();
       try {
-        localStorage.removeItem(staffLoginKey)
+        if (staffSignedIn) {
+          localStorage.removeItem(staffLoginKey)
+        }
+        else {
+          localStorage.removeItem(loginKey)
+        }
       }
       catch (err) {
       }
       window.location.href = "account.html"
     }
-  }
-  else if (getCurrentAccount()) {
-    link.textContent = "My Account";
-    link.href = "account.html";
-    link.onclick = null
-  }
-  else {
-    link.textContent = "Login / Signup";
-    link.href = "account.html";
-    link.onclick = null
   }
 }
 function accountMessage(id, message) {
