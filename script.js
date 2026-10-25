@@ -1800,15 +1800,20 @@ if (form) {
     }
     try {
       const bookings = readBookings();
-      for (let i = 0; i < bookings.length; i++) {
+      let latestCarBooking = null;
+      for (let i = bookings.length - 1; i >= 0; i--) {
         if (bookings[i].carId === carId) {
-          alert("This car has just become unavailable. Please choose another car.");
-          updateCarOptions();
-          showCarAvailability(carId);
-          pendingBooking = null;
-          if (confirmModal) confirmModal.hidden = true;
-          return
+          latestCarBooking = bookings[i];
+          break
         }
+      }
+      if (latestCarBooking && bookingStatus(latestCarBooking) !== "available") {
+        alert("This car has just become unavailable. Please choose another car.");
+        updateCarOptions();
+        showCarAvailability(carId);
+        pendingBooking = null;
+        if (confirmModal) confirmModal.hidden = true;
+        return
       }
       pendingBooking.status = "reserved";
       pendingBooking.paid = false;
