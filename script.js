@@ -546,7 +546,7 @@ if (accountPage) {
       if (username === "staff" && password === "staff") {
         try {
           if (signInStaff(username, password)) {
-            goHomeWithWelcome("Welcome back!!");
+            goHomeWithWelcome("Welcome back to AZoom!");
             return
           }
         }
@@ -568,7 +568,7 @@ if (accountPage) {
       }
       try {
         localStorage.setItem(loginKey, match.email);
-        goHomeWithWelcome("Welcome back!!")
+        goHomeWithWelcome("Welcome back to AZoom!")
       }
       catch (err) {
         accountMessage("login-msg", "Local storage is unavailable. Open the page with Live Server and try again.")
