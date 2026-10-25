@@ -2174,3 +2174,94 @@ for (let i = 0; i < menuLinks.length; i++) {
     }
   });
 }
+
+/* Smooth same-page and cross-page section navigation */
+(function() {
+  const pendingKey = "azoomPendingScroll";
+
+  function findTarget(hash) {
+    let id = hash.substring(1);
+    try {
+      id = decodeURIComponent(id)
+    }
+    catch (err) {
+    }
+    return document.getElementById(id)
+  }
+
+  function scrollToTarget(target) {
+    if (target.id === "top") {
+      window.scrollTo({top: 0, behavior: "smooth"});
+      return
+    }
+    const header = document.querySelector(".head"),
+    offset = header ? header.offsetHeight + 12 : 0,
+    top = Math.max(0, target.getBoundingClientRect().top + window.pageYOffset - offset);
+    window.scrollTo({top: top, behavior: "smooth"})
+  }
+
+  let pending = null;
+  try {
+    const saved = sessionStorage.getItem(pendingKey);
+    if (saved) {
+      pending = JSON.parse(saved);
+      sessionStorage.removeItem(pendingKey)
+    }
+  }
+  catch (err) {
+  }
+
+  let initialHash = "";
+  if (pending && pending.path === window.location.pathname + window.location.search) {
+    initialHash = pending.hash
+  }
+  else if (window.location.hash) {
+    initialHash = window.location.hash
+  }
+  if (initialHash) {
+    const pageUrl = window.location.pathname + window.location.search;
+    if (window.location.hash) {
+      window.history.replaceState(null, "", pageUrl)
+    }
+    window.scrollTo(0, 0);
+    window.setTimeout(function() {
+      const target = findTarget(initialHash);
+      if (!target) return;
+      window.history.replaceState(null, "", pageUrl + initialHash);
+      scrollToTarget(target)
+    }, 350)
+  }
+
+  document.addEventListener("click", function(event) {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const link = event.target.closest ? event.target.closest("a[href]") : null;
+    if (!link || link.hasAttribute("download") || (link.target && link.target !== "_self")) return;
+    let destination;
+    try {
+      destination = new URL(link.href)
+    }
+    catch (err) {
+      return
+    }
+    if (destination.origin !== window.location.origin || !destination.hash) return;
+    const samePage = destination.pathname === window.location.pathname && destination.search === window.location.search,
+    target = samePage ? findTarget(destination.hash) : null;
+    if (samePage && !target) return;
+    event.preventDefault();
+    if (samePage) {
+      window.history.pushState(null, "", destination.pathname + destination.search + destination.hash);
+      scrollToTarget(target);
+      return
+    }
+    try {
+      sessionStorage.setItem(pendingKey, JSON.stringify({
+        path: destination.pathname + destination.search,
+        hash: destination.hash
+      }));
+      window.location.href = destination.pathname + destination.search
+    }
+    catch (err) {
+      window.location.href = destination.href
+    }
+  });
+})();
