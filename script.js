@@ -262,6 +262,36 @@ function updateAccountLink() {
     }
   }
 }
+function goHomeWithWelcome(message) {
+  try {
+    sessionStorage.setItem("azoomWelcomeMessage", message)
+  }
+  catch (err) {
+  }
+  window.location.href = "index.html"
+}
+function showHomeWelcome() {
+  const toast = document.getElementById("welcome-toast");
+  if (!toast) return;
+  let message = "";
+  try {
+    message = sessionStorage.getItem("azoomWelcomeMessage") || "";
+    sessionStorage.removeItem("azoomWelcomeMessage")
+  }
+  catch (err) {
+  }
+  if (!message) return;
+  toast.textContent = message;
+  toast.hidden = false;
+  window.setTimeout(function() {
+    toast.classList.add("fade-out")
+  }, 2500);
+  window.setTimeout(function() {
+    toast.hidden = true;
+    toast.classList.remove("fade-out")
+  }, 3000)
+}
+showHomeWelcome();
 function accountMessage(id, message) {
   const el = document.getElementById(id);
   if (el) {
@@ -516,7 +546,7 @@ if (accountPage) {
       if (username === "staff" && password === "staff") {
         try {
           if (signInStaff(username, password)) {
-            window.location.href = "admin.html";
+            goHomeWithWelcome("Welcome back!!");
             return
           }
         }
@@ -538,9 +568,7 @@ if (accountPage) {
       }
       try {
         localStorage.setItem(loginKey, match.email);
-        if (!goAccountNext()) {
-          showAccount(match)
-        }
+        goHomeWithWelcome("Welcome back!!")
       }
       catch (err) {
         accountMessage("login-msg", "Local storage is unavailable. Open the page with Live Server and try again.")
@@ -705,9 +733,7 @@ if (signupForm) {
       accounts.push(user);
       localStorage.setItem(accountsKey, JSON.stringify(accounts));
       localStorage.setItem(loginKey, email);
-      if (!goAccountNext()) {
-        window.location.href = "account.html"
-      }
+      goHomeWithWelcome("Welcome Azoom car rental")
     }
     catch (err) {
       accountMessage("signup-msg", "Local storage is unavailable. Open the page with Live Server and try again.")

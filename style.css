@@ -44,6 +44,35 @@ p {
   display: none!important;
 }
 
+.welcome-toast {
+  position: fixed;
+  top: 96px;
+  left: 50%;
+  z-index: 30;
+  padding: 12px 24px;
+  border: 1px solid #a5d8b6;
+  border-radius: 12px;
+  background: #e7f6eb;
+  box-shadow: 0 12px 30px #10254820;
+  color: #17683a;
+  font-weight: bold;
+  opacity: 1;
+  transform: translateX(-50%);
+  transition: opacity .45s ease, transform .45s ease;
+}
+
+.welcome-toast.fade-out {
+  opacity: 0;
+  transform: translate(-50%, -8px);
+}
+
+@media (max-width: 800px) {
+  .welcome-toast {
+    top: 78px;
+    max-width: calc(100% - 32px);
+    text-align: center;
+  }
+}
 .wrap {
   width: 90%;
   max-width: 1200px;
