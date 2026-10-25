@@ -258,7 +258,7 @@ function updateAccountLink() {
       }
       catch (err) {
       }
-      window.location.href = "account.html"
+      window.location.href = "index.html"
     }
   }
 }
@@ -580,7 +580,7 @@ if (accountPage) {
     logout.addEventListener("click", function() {
       try {
         localStorage.removeItem(loginKey);
-        window.location.href = "account.html"
+        window.location.href = "index.html"
       }
       catch (err) {
       }
@@ -1618,7 +1618,8 @@ if (staffLogout) {
     }
     catch (err) {
     }
-    updateAccountLink()
+    updateAccountLink();
+    window.location.href = "index.html"
   });
 }
 const summary = document.getElementById("search-summary");
