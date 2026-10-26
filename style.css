@@ -485,6 +485,14 @@ p {
 .car {
   position: relative;
   overflow: hidden;
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+
+.car:hover,
+.car:focus-within {
+  z-index: 2;
+  transform: translateY(-5px) scale(1.015);
+  box-shadow: 0 16px 32px #10254826;
 }
 
 .status {
