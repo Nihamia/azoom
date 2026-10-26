@@ -9,17 +9,30 @@
       
       <a href="index.html">Main</a>
       <a href="cars.html">Cars</a>
-      <a class="on" href="rental-process.html#locations">Locations</a>
+      <a href="rental-process.html#locations">Pickup points</a>
+      <a href="rental-process.html#return">Return areas</a>
+      <a href="index.html#reviews">Reviews</a>
+      <a href="contact-us.html">Contact Us</a>
       <a class="staff-only-link" href="admin.html" hidden>Admin dashboard</a>
     
     </nav>
       <div class="head-actions">
-      <a class="btn alt" id="account-link" href="account.html">Login / Signup</a><a class="btn alt" id="logout-link" href="#" hidden>Log out</a>
+              <details class="profile-control">
+          <summary class="profile-toggle" aria-label="Account menu">
+            <img class="profile-image" src="images/profile-icon.png" alt="">
+          </summary>
+          <div class="profile-menu">
+            <a class="profile-menu-link" id="profile-account-link" href="account.html">Login / Signup</a>
+            <a class="profile-menu-link" id="profile-logout-link" href="#" hidden>Log out</a>
+          </div>
+        </details>
+        <a class="btn alt mobile-account-link" id="account-link" href="account.html">Login / Signup</a>
+        <a class="btn alt mobile-logout-link" id="logout-link" href="#" hidden>Log out</a>
       <a class="btn" href="reservation.html">Book a car &rarr;</a>
     </div>
     </div>
   </div>
-</header><main id="main"><section class="banner"><div class="wrap"><p class="label">STEP 05 - FINAL BILL</p><h1>Review and pay your bill.</h1><p>The amount includes rental cost and any damage found during inspection.</p></div></section><section class="section"><div class="wrap narrow"><article class="panel"><p class="label">AZOOM CAR RENTAL</p><h2>Final bill</h2><div class="field"><label for="bill-booking-select">Choose a booking</label><select id="bill-booking-select"></select></div><p>Booking reference: <b id="bill-ref">AZ-2026-0142 (sample)</b></p><dl class="dl"><div><dt>Customer</dt><dd id="bill-customer">Sample customer</dd></div><div><dt>Vehicle</dt><dd id="bill-car">AZoom City Electric</dd></div><div><dt>Rental days</dt><dd id="bill-days">3</dd></div><div><dt>Inspection</dt><dd id="bill-inspection">Sample damage recorded</dd></div></dl><div class="table-wrap"><table class="table"><thead><tr><th>Description</th><th>Calculation</th><th>Amount</th></tr></thead><tbody><tr><td>Vehicle rental</td><td id="bill-rent-calc">S$88 x 3 days</td><td id="bill-rent">S$264.00</td></tr><tr><td>Damage charge</td><td id="bill-damage-calc">Sample inspection charge</td><td id="bill-damage">S$120.00</td></tr></tbody><tfoot><tr><th colspan="2">Final amount due</th><td id="bill-total">S$384.00</td></tr></tfoot></table></div><p class="note">Classroom demo only. No card details are collected and no payment is processed.</p><div class="tools"><button class="btn" id="pay-btn" type="button">Pay by credit card</button><a class="btn alt" href="index.html">Back home</a></div><p id="pay-msg" class="good"></p></article></div></section></main><footer class="foot"><div class="wrap foot-grid"><div><a class="brand light" href="index.html"><img src="images/mainLogo-transparent.png" alt="AZoom Car Rental"></a><p>Electric drives around Singapore.</p></div><div><h3>Explore</h3><a href="index.html">Main</a><a href="cars.html">Our cars</a><a href="reservation.html">Reserve a car</a></div><div><h3>Rental process</h3><a href="rental-process.html#pickup">Pickup</a><a href="rental-process.html#return">Return</a></div><div class="footer-contact">
+</header><main id="main"><section class="banner"><div class="wrap"><p class="label">STEP 05 - FINAL BILL</p><h1>Review and pay your bill.</h1><p>The amount includes rental cost and any damage found during inspection.</p></div></section><section class="section"><div class="wrap narrow"><article class="panel"><p class="label">AZOOM CAR RENTAL</p><h2>Final bill</h2><div class="field"><label for="bill-booking-select">Choose a booking</label><select id="bill-booking-select"></select></div><p>Booking reference: <b id="bill-ref">AZ-2026-0142 (sample)</b></p><dl class="dl"><div><dt>Customer</dt><dd id="bill-customer">Sample customer</dd></div><div><dt>Vehicle</dt><dd id="bill-car">AZoom City Electric</dd></div><div><dt>Rental days</dt><dd id="bill-days">3</dd></div><div><dt>Inspection</dt><dd id="bill-inspection">Sample damage recorded</dd></div></dl><div class="table-wrap"><table class="table bill-summary-table"><thead><tr><th>Description</th><th>Amount</th></tr></thead><tbody><tr><td>Vehicle rental</td><td id="bill-rent">S$264.00</td></tr><tr><td>Damage charge</td><td id="bill-damage">S$120.00</td></tr></tbody><tfoot><tr><th>Final amount due</th><td id="bill-total">S$384.00</td></tr></tfoot></table></div><p class="note">Classroom demo only. No card details are collected and no payment is processed.</p><div class="tools"><button class="btn" id="pay-btn" type="button">Pay by credit card</button><a class="btn alt" href="index.html">Back home</a></div><p id="pay-msg" class="good"></p></article></div></section></main><footer class="foot"><div class="wrap foot-grid"><div><a class="brand light" href="index.html"><img src="images/mainLogo-transparent.png" alt="AZoom Car Rental"></a><p>Electric drives around Singapore.</p></div><div><h3>Explore</h3><a href="index.html">Main</a><a href="cars.html">Our cars</a><a href="reservation.html">Reserve a car</a></div><div><h3>Rental process</h3><a href="rental-process.html#pickup">Pickup</a><a href="rental-process.html#return">Return</a></div><div class="footer-contact">
 <h3>Contact</h3>
 <p>+65 89273182</p>
 <p>azoomhelp@gmail.com</p>

@@ -154,8 +154,13 @@ function bookingDamageTotal(booking) {
   }
   return Number(booking.inspection.damageCost || 0)
 }
+function bookingRentalCharge(booking) {
+  const original = Number(booking && booking.dailyRate || 0) * Number(booking && booking.rentalDays || 0),
+  discount = Number(booking && booking.rentalDiscountAmount || 0);
+  return Math.max(0, original - discount)
+}
 function bookingBaseTotal(booking) {
-  return Number(booking && booking.dailyRate || 0) * Number(booking && booking.rentalDays || 0) + bookingDamageTotal(booking)
+  return bookingRentalCharge(booking) + bookingDamageTotal(booking)
 }
 function bookingTotal(booking) {
   const base = bookingBaseTotal(booking),
@@ -189,7 +194,93 @@ function latestBooking() {
   return bookings.length ? bookings[bookings.length - 1] : null
 }
 const accountsKey = "azoomAccounts",
-loginKey = "azoomLoggedIn";
+loginKey = "azoomLoggedIn",
+rewardThreshold = 1000;
+function rewardPointsForCategory(category) {
+  const value = String(category || "").toLowerCase();
+  if (value.indexOf("premium") >= 0) return 300;
+  if (value.indexOf("family") >= 0) return 200;
+  if (value.indexOf("city") >= 0) return 100;
+  return 0
+}
+function accountRewardPoints(account) {
+  return Math.max(0, Number(account && account.rewardPoints || 0))
+}
+function saveAccounts(accounts) {
+  localStorage.setItem(accountsKey, JSON.stringify(accounts))
+}
+function awardPaidBookingPoints(booking) {
+  const earned = rewardPointsForCategory(booking && booking.category);
+  if (!booking || !earned || !booking.email) return 0;
+  const accounts = readAccounts();
+  for (let i = 0; i < accounts.length; i++) {
+    const account = accounts[i];
+    if (String(account.email || "").toLowerCase() !== String(booking.email).toLowerCase()) continue;
+    if (!Array.isArray(account.rewardAwards)) account.rewardAwards = [];
+    if (account.rewardAwards.indexOf(booking.reference) >= 0) {
+      booking.rewardPointsAwarded = earned;
+      return 0
+    }
+    account.rewardPoints = accountRewardPoints(account) + earned;
+    account.rewardAwards.push(booking.reference);
+    saveAccounts(accounts);
+    booking.rewardPointsAwarded = earned;
+    booking.rewardPointsAwardedAt = new Date().toISOString();
+    return earned
+  }
+  return 0
+}
+function reserveLoyaltyReward(booking) {
+  const accounts = readAccounts(),
+  original = Number(booking.dailyRate || 0) * Number(booking.rentalDays || 0);
+  booking.rentalDiscountAmount = 0;
+  booking.rentalDiscountPercent = 0;
+  booking.rewardsPointsRedeemed = 0;
+  for (let i = 0; i < accounts.length; i++) {
+    const account = accounts[i];
+    if (String(account.email || "").toLowerCase() !== String(booking.email || "").toLowerCase()) continue;
+    if (!Array.isArray(account.rewardRedemptions)) account.rewardRedemptions = [];
+    if (account.rewardRedemptions.indexOf(booking.reference) >= 0) {
+      booking.rewardsPointsRedeemed = rewardThreshold;
+      booking.rentalDiscountPercent = 10;
+      if (!Number(booking.rentalDiscountAmount)) {
+        booking.rentalDiscountAmount = Math.round(original * 0.1 * 100) / 100
+      }
+      booking.estimatedTotal = Math.max(0, original - booking.rentalDiscountAmount);
+      return true
+    }
+    if (accountRewardPoints(account) >= rewardThreshold) {
+      booking.rentalDiscountAmount = Math.round(original * 0.1 * 100) / 100;
+      booking.rentalDiscountPercent = 10;
+      booking.rewardsPointsRedeemed = rewardThreshold;
+      account.rewardPoints = accountRewardPoints(account) - rewardThreshold;
+      account.rewardRedemptions.push(booking.reference);
+      saveAccounts(accounts);
+      booking.estimatedTotal = Math.max(0, original - booking.rentalDiscountAmount);
+      return true
+    }
+    break
+  }
+  booking.estimatedTotal = original;
+  return false
+}
+function restoreLoyaltyReward(booking) {
+  const points = Number(booking && booking.rewardsPointsRedeemed || 0);
+  if (!booking || !points || !booking.email) return 0;
+  const accounts = readAccounts();
+  for (let i = 0; i < accounts.length; i++) {
+    const account = accounts[i];
+    if (String(account.email || "").toLowerCase() !== String(booking.email).toLowerCase()) continue;
+    if (!Array.isArray(account.rewardRestorations)) account.rewardRestorations = [];
+    if (account.rewardRestorations.indexOf(booking.reference) >= 0) return 0;
+    account.rewardPoints = accountRewardPoints(account) + points;
+    account.rewardRestorations.push(booking.reference);
+    saveAccounts(accounts);
+    booking.rewardPointsRestored = true;
+    return points
+  }
+  return 0
+}
 const searchKey = "azoomSearch",
 reservationDraftKey = "azoomReservationDraft",
 staffLoginKey = "azoomStaffLoggedIn";
@@ -233,19 +324,20 @@ function updateAccountLink() {
   catch (err) {
   }
   const currentAccount = getCurrentAccount();
+  const signedIn = staffSignedIn || Boolean(currentAccount);
   const staffLinks = document.querySelectorAll(".staff-only-link");
   for (let i = 0; i < staffLinks.length; i++) {
     staffLinks[i].hidden = !staffSignedIn
   }
-  const link = document.getElementById("account-link");
-  if (link) {
-    link.textContent = staffSignedIn || currentAccount ? "My Account" : "Login / Signup";
-    link.href = "account.html";
-    link.onclick = null
+  const accountLinks = document.querySelectorAll("#account-link, #profile-account-link");
+  for (let i = 0; i < accountLinks.length; i++) {
+    accountLinks[i].textContent = signedIn ? "My Account" : "Login / Signup";
+    accountLinks[i].href = staffSignedIn ? "admin.html" : "account.html"
   }
-  const logout = document.getElementById("logout-link");
-  if (logout) {
-    logout.hidden = !(staffSignedIn || currentAccount);
+  const logoutLinks = document.querySelectorAll("#logout-link, #profile-logout-link");
+  for (let i = 0; i < logoutLinks.length; i++) {
+    const logout = logoutLinks[i];
+    logout.hidden = !signedIn;
     logout.onclick = function(e) {
       e.preventDefault();
       try {
@@ -310,14 +402,22 @@ function showAccount(user) {
   }
   show("account-name", user.name);
   show("account-email", user.email);
+  const points = accountRewardPoints(user),
+  pointsMessage = points >= rewardThreshold ? "Your 10% rental discount is ready for your next booking." : "Earn " + (rewardThreshold - points) + " more points to unlock 10% off your next rental.";
+  show("account-reward-points", points);
+  show("account-reward-message", pointsMessage);
   showAccountReservation(user);
   updateAccountLink()
 }
 function addBillLine(parent, label, value) {
-  const line = document.createElement("p"), strong = document.createElement("b");
-  strong.textContent = label + ": ";
+  const line = document.createElement("p"), strong = document.createElement("b"), detail = document.createElement("span");
+  line.className = "bill-line";
+  strong.className = "bill-line-title";
+  strong.textContent = label;
+  detail.className = "bill-line-value";
+  detail.textContent = value;
   line.appendChild(strong);
-  line.appendChild(document.createTextNode(value));
+  line.appendChild(detail);
   parent.appendChild(line)
 }
 function createAccountBill(booking) {
@@ -333,15 +433,30 @@ function createAccountBill(booking) {
   bill.appendChild(heading);
   addBillLine(bill, "Customer", booking.email || "-");
   addBillLine(bill, "Car", booking.carName || "-");
+  addBillLine(bill, "Additional request", booking.additionalRequestLabel || "None");
   addBillLine(bill, "Pickup branch", booking.pickupBranch || "-");
   addBillLine(bill, "Collection point", booking.pickupLocation || pickupLocation(booking.pickupBranch));
   addBillLine(bill, "Rental dates", (booking.pickupDate || "-") + " to " + (booking.returnDate || "-"));
-  addBillLine(bill, "Rental", money(Number(booking.dailyRate) * Number(booking.rentalDays)) + " (" + booking.rentalDays + " day(s) x " + money(booking.dailyRate) + ")");
+  addBillLine(bill, "Rental before discount", money(Number(booking.dailyRate) * Number(booking.rentalDays)) + " (" + booking.rentalDays + " day(s) x " + money(booking.dailyRate) + ")");
+  if (Number(booking.rentalDiscountAmount || 0) > 0) addBillLine(bill, "Rewards discount (10%, " + booking.rewardsPointsRedeemed + " points)", "−" + money(booking.rentalDiscountAmount));
+  addBillLine(bill, "Rental total", money(bookingRentalCharge(booking)));
   const inspection = booking.inspection || {}, items = inspection.items || [];
+  let repairTotal = 0, hasDamage = false;
   for (let i = 0; i < items.length; i++) {
-    const item = items[i], row = document.createElement("div"), detail = document.createElement("p");
+    const item = items[i];
+    if (item.condition !== "Needs repair") continue;
+    repairTotal += Number(item.repairCost || 0);
+    hasDamage = true;
+    const row = document.createElement("div"), detail = document.createElement("div"),
+    itemTitle = document.createElement("span"), itemCost = document.createElement("strong");
     row.className = "bill-item";
-    detail.textContent = item.label + " — " + item.condition + (item.condition === "Needs repair" ? " · Repair: " + money(item.repairCost) : " · " + money(0));
+    detail.className = "bill-item-line";
+    itemTitle.className = "bill-item-title";
+    itemTitle.textContent = item.label + " · " + item.condition;
+    itemCost.className = "bill-item-cost";
+    itemCost.textContent = money(item.repairCost);
+    detail.appendChild(itemTitle);
+    detail.appendChild(itemCost);
     row.appendChild(detail);
     if (item.comment) {
       const comment = document.createElement("p");
@@ -360,7 +475,8 @@ function createAccountBill(booking) {
     }
     bill.appendChild(row)
   }
-  if (inspection.comment) addBillLine(bill, "Staff summary", inspection.comment);
+  if (items.length) addBillLine(bill, "Repair total", money(repairTotal));
+  if (hasDamage && inspection.comment) addBillLine(bill, "Staff summary", inspection.comment);
   if (booking.appeal) {
     addBillLine(bill, "Appeal receipt", booking.appealReference || "AP-" + booking.reference);
     addBillLine(bill, "Appeal submitted", booking.appeal);
@@ -371,7 +487,11 @@ function createAccountBill(booking) {
     }
   }
   total.className = "account-bill-total";
-  total.textContent = "Final amount due: " + money(bookingTotal(booking));
+  const totalLabel = document.createElement("span"), totalAmount = document.createElement("strong");
+  totalLabel.textContent = "Final amount due";
+  totalAmount.textContent = money(bookingTotal(booking));
+  total.appendChild(totalLabel);
+  total.appendChild(totalAmount);
   bill.appendChild(total);
   payment.className = received ? "msg success" : "note";
   payment.textContent = received ? "Payment received: " + money(booking.paidAmount || bookingTotal(booking)) : submitted ? "Payment submitted. Staff will confirm receipt." : booking.appeal && !booking.appealResolved ? "Your appeal is being reviewed. Payment will be available after staff sends the revised final bill." : booking.appealResolved ? "Staff sent the revised final bill. Please pay the updated amount below." : "Payment is outstanding. Pay or appeal this bill below.";
@@ -411,9 +531,6 @@ function createAccountBill(booking) {
     bill.appendChild(appealForm)
   }
   bill.appendChild(actions);
-  const note = document.createElement("p");
-  note.className = "small"; note.textContent = "Assignment prototype: payment submission, staff receipt confirmation and appeals are saved in this browser.";
-  bill.appendChild(note);
   return bill
 }
 function showAccountReservation(user) {
@@ -449,8 +566,18 @@ function showAccountReservation(user) {
     badge.className = "status " + state;
     badge.textContent = state === "repairing" ? "Under repair" : booking.billIssued ? booking.billReceived || booking.paid ? "Bill received" : "Bill issued" : state === "rented" ? "Rented out" : state === "returned" ? "Returned" : state === "available" ? "Available" : "Reserved";
     status.appendChild(badge);
+    if (state === "reserved") {
+      const checklistLink = document.createElement("a");
+      checklistLink.className = "btn alt pickup-checklist-link";
+      checklistLink.href = "checklist.html?ref=" + encodeURIComponent(booking.reference);
+      checklistLink.textContent = "Pickup checklist";
+      status.appendChild(checklistLink)
+    }
     pickup.innerHTML = "<b>Pickup date:</b> "; pickup.appendChild(document.createTextNode(booking.pickupDate || ""));
     returning.innerHTML = "<b>Return date:</b> "; returning.appendChild(document.createTextNode(booking.returnDate || ""));
+    const request = document.createElement("p");
+    request.innerHTML = "<b>Additional request:</b> ";
+    request.appendChild(document.createTextNode(booking.additionalRequestLabel || "None"));
     branch.innerHTML = "<b>Pickup branch:</b> "; branch.appendChild(document.createTextNode(booking.pickupBranch || ""));
     location.innerHTML = "<b>Collection point:</b> "; location.appendChild(document.createTextNode(booking.pickupLocation || pickupLocation(booking.pickupBranch)));
     receipt.innerHTML = "<b>Receipt number:</b> "; receipt.appendChild(document.createTextNode(booking.reference));
@@ -467,8 +594,13 @@ function showAccountReservation(user) {
     const bookingDetails = document.createElement("div");
     bookingDetails.className = "account-booking-details";
     bookingDetails.appendChild(pickup); bookingDetails.appendChild(returning);
-    bookingDetails.appendChild(branch); bookingDetails.appendChild(location); bookingDetails.appendChild(receipt); bookingDetails.appendChild(tools);
+    bookingDetails.appendChild(branch); bookingDetails.appendChild(location); bookingDetails.appendChild(request); bookingDetails.appendChild(receipt); bookingDetails.appendChild(tools);
     if (booking.billIssued) bookingDetails.appendChild(createAccountBill(booking));
+    if (booking.rewardPointsAwarded) {
+      const pointsEarned = document.createElement("p");
+      pointsEarned.textContent = "Rewards earned: " + booking.rewardPointsAwarded + " points";
+      bookingDetails.appendChild(pointsEarned)
+    }
     const collapseDetails = isHistory || booking.billIssued && (booking.billReceived || booking.paid);
     if (collapseDetails) {
       const toggle = document.createElement("button"), showLabel = isHistory ? "Show booking history details" : "Show booking and paid bill details";
@@ -518,6 +650,13 @@ function goAccountNext() {
   return false
 }
 updateAccountLink();
+const customerChecklistContext = document.getElementById("customer-checklist-context");
+if (customerChecklistContext) {
+  const checklistBooking = findBooking(queryValue("ref"));
+  if (checklistBooking) {
+    customerChecklistContext.textContent = "Vehicle: " + checklistBooking.carName + " · Pickup: " + (checklistBooking.pickupDate || "Not set") + " · Return: " + (checklistBooking.returnDate || "Not set") + " · Receipt: " + checklistBooking.reference
+  }
+}
 function keepAccountNext(id, page) {
   const link = document.getElementById(id),
   next = getAccountNext();
@@ -546,7 +685,7 @@ if (accountPage) {
       if (username === "staff" && password === "staff") {
         try {
           if (signInStaff(username, password)) {
-            goHomeWithWelcome("Welcome back to AZoom!");
+            window.location.href = "admin.html#admin-inventory";
             return
           }
         }
@@ -681,6 +820,7 @@ if (cancelYes && cancelModal) {
         accountMessage("cancel-msg", "No cancellable reservation was found for this account.");
         return
       }
+      restoreLoyaltyReward(bookings[index]);
       bookings.splice(index, 1);
       saveBookings(bookings);
       localStorage.removeItem(reservationDraftKey);
@@ -705,6 +845,50 @@ document.addEventListener("keydown", function(e) {
 
 const signupForm = document.getElementById("signup-form");
 if (signupForm) {
+  const signupEmail = document.getElementById("signup-email"),
+  signupOtp = document.getElementById("signup-otp"),
+  verifyEmailButton = document.getElementById("verify-email-btn"),
+  verificationMessage = document.getElementById("signup-verify-msg");
+  let verifiedEmail = "";
+  if (signupOtp) {
+    signupOtp.addEventListener("input", function() {
+      signupOtp.value = signupOtp.value.replace(/[^0-9]/g, "").slice(0, 5)
+    })
+  }
+  if (signupEmail) {
+    signupEmail.addEventListener("input", function() {
+      if (verifiedEmail && signupEmail.value.trim().toLowerCase() !== verifiedEmail) {
+        verifiedEmail = "";
+        if (verificationMessage) {
+          verificationMessage.textContent = "";
+          verificationMessage.hidden = true;
+          verificationMessage.className = "msg"
+        }
+      }
+    })
+  }
+  if (verifyEmailButton) {
+    verifyEmailButton.addEventListener("click", function() {
+      if (!signupEmail.checkValidity()) {
+        signupEmail.reportValidity();
+        return
+      }
+      if (!signupOtp || signupOtp.value !== "12345") {
+        if (verificationMessage) {
+          verificationMessage.textContent = "Enter the correct five-digit verification code.";
+          verificationMessage.className = "msg";
+          verificationMessage.hidden = false
+        }
+        return
+      }
+      verifiedEmail = signupEmail.value.trim().toLowerCase();
+      if (verificationMessage) {
+        verificationMessage.textContent = "Email sent successfully. Your email address is now verified.";
+        verificationMessage.className = "msg success";
+        verificationMessage.hidden = false
+      }
+    })
+  }
   const current = getCurrentAccount();
   if (current && !goAccountNext()) {
     window.location.replace("account.html")
@@ -716,6 +900,11 @@ if (signupForm) {
     email = document.getElementById("signup-email").value.trim().toLowerCase(),
     password = document.getElementById("signup-password").value,
     accounts = readAccounts();
+    if (verifiedEmail !== email) {
+      accountMessage("signup-msg", "Please verify your email address before creating your account.");
+      if (signupOtp) signupOtp.focus();
+      return
+    }
     for (let i = 0; i < accounts.length; i++) {
       if (accounts[i].email === email) {
         accountMessage("signup-msg", "An account already uses this email. Please sign in.");
@@ -771,6 +960,16 @@ function pickupLocation(branch) {
 }
 function validCardNumber(value) {
   return /^[0-9]{16}$/.test(value)
+}
+function validSingaporePhone(value) {
+  return /^[3689][0-9]{7}$/.test(String(value || "").trim())
+}
+function validSingaporeDrivingLicense(value) {
+  return /^[STFGM][0-9]{7}[A-Z]$/.test(String(value || "").trim().toUpperCase())
+}
+function maskDrivingLicense(value) {
+  const license = String(value || "").trim().toUpperCase();
+  return /^[STFGM][0-9]{7}[A-Z]$/.test(license) ? license.charAt(0) + "•••••••" + license.charAt(8) : "-"
 }
 function drawCode39(id, value) {
   const svg = document.getElementById(id);
@@ -1082,7 +1281,7 @@ function renderAdminDashboard() {
   let rentTotal = 0, damageTotal = 0, totalDue = 0, paidTotal = 0, outstandingTotal = 0;
   for (let i = 0; i < bookings.length; i++) {
     const booking = bookings[i],
-    rent = Number(booking.dailyRate || 0) * Number(booking.rentalDays || 0),
+    rent = bookingRentalCharge(booking),
     damage = bookingDamageTotal(booking),
     total = bookingTotal(booking),
     received = booking.billReceived || booking.paid,
@@ -1174,14 +1373,20 @@ function openAppeal(reference) {
   addBillLine(appealReceiptDetails, "Car", booking.carName || "-");
   addBillLine(appealReceiptDetails, "Rental dates", (booking.pickupDate || "-") + " to " + (booking.returnDate || "-"));
   addBillLine(appealReceiptDetails, "Pickup branch", booking.pickupBranch || "-");
-  addBillLine(appealReceiptDetails, "Rental charge", money(Number(booking.dailyRate || 0) * Number(booking.rentalDays || 0)));
+  addBillLine(appealReceiptDetails, "Rental charge", money(bookingRentalCharge(booking)));
+  if (Number(booking.rentalDiscountAmount || 0) > 0) addBillLine(appealReceiptDetails, "Rewards discount", "−" + money(booking.rentalDiscountAmount));
   const items = booking.inspection && booking.inspection.items ? booking.inspection.items : [];
+  let appealRepairTotal = 0, appealHasDamage = false;
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
-    addBillLine(appealReceiptDetails, item.label, item.condition + (item.condition === "Needs repair" ? " · Repair: " + money(item.repairCost) : " · " + money(0)));
+    if (item.condition !== "Needs repair") continue;
+    appealRepairTotal += Number(item.repairCost || 0);
+    appealHasDamage = true;
+    addBillLine(appealReceiptDetails, item.label, "Needs repair · " + money(item.repairCost));
     if (item.comment) addBillLine(appealReceiptDetails, "Staff comment", item.comment);
   }
-  if (booking.inspection && booking.inspection.comment) addBillLine(appealReceiptDetails, "Staff summary", booking.inspection.comment);
+  if (items.length) addBillLine(appealReceiptDetails, "Repair total", money(appealRepairTotal));
+  if (appealHasDamage && booking.inspection && booking.inspection.comment) addBillLine(appealReceiptDetails, "Staff summary", booking.inspection.comment);
   addBillLine(appealReceiptDetails, "Original final bill", money(bookingBaseTotal(booking)));
   appealInfo.textContent = (booking.carName || "Car") + " · " + (booking.email || "") + " · " + booking.reference;
   appealCustomerMessage.textContent = booking.appeal;
@@ -1272,13 +1477,19 @@ function renderInspectionBillPreview(booking, inspection) {
   addBillLine(inspectionBillDetails, "Pickup branch", booking.pickupBranch || "-");
   addBillLine(inspectionBillDetails, "Collection point", booking.pickupLocation || pickupLocation(booking.pickupBranch));
   addBillLine(inspectionBillDetails, "Rental dates", (booking.pickupDate || "-") + " to " + (booking.returnDate || "-"));
-  const rent = Number(booking.dailyRate || 0) * Number(booking.rentalDays || 0);
-  addBillLine(inspectionBillDetails, "Rental charge", money(booking.dailyRate) + " x " + booking.rentalDays + " day(s) = " + money(rent));
-  let repairTotal = 0;
+  const rent = bookingRentalCharge(booking),
+  originalRent = Number(booking.dailyRate || 0) * Number(booking.rentalDays || 0);
+  addBillLine(inspectionBillDetails, "Rental charge", money(booking.dailyRate) + " x " + booking.rentalDays + " day(s) = " + money(originalRent));
+  if (Number(booking.rentalDiscountAmount || 0) > 0) addBillLine(inspectionBillDetails, "Rewards discount", "−" + money(booking.rentalDiscountAmount));
+  addBillLine(inspectionBillDetails, "Rental total", money(rent));
+  let repairTotal = 0, hasDamage = false;
   for (let i = 0; i < inspection.items.length; i++) {
-    const item = inspection.items[i], row = document.createElement("div"), detail = document.createElement("p");
+    const item = inspection.items[i];
+    if (item.condition !== "Needs repair") continue;
+    hasDamage = true;
+    const row = document.createElement("div"), detail = document.createElement("p");
     row.className = "bill-item";
-    detail.textContent = item.label + " — " + item.condition + " — " + money(item.repairCost);
+    detail.textContent = item.label + " — Needs repair — " + money(item.repairCost);
     row.appendChild(detail);
     if (item.comment) {
       const comment = document.createElement("p");
@@ -1287,7 +1498,7 @@ function renderInspectionBillPreview(booking, inspection) {
     inspectionBillDetails.appendChild(row);
     repairTotal += Number(item.repairCost || 0)
   }
-  if (inspection.comment) addBillLine(inspectionBillDetails, "Staff summary", inspection.comment);
+  if (hasDamage && inspection.comment) addBillLine(inspectionBillDetails, "Staff summary", inspection.comment);
   addBillLine(inspectionBillDetails, "Repair total", money(repairTotal));
   inspectionBillTotal.textContent = "Staff total cost: " + money(rent + repairTotal)
 }
@@ -1546,9 +1757,13 @@ if (adminActionConfirm && adminActionModal) {
       else if (action === "receive-bill") {
         booking.billReceived = true;
         booking.paid = true;
-        booking.paidAmount = bookingTotal(booking)
+        booking.paidAmount = bookingTotal(booking);
+        awardPaidBookingPoints(booking)
       }
-      else bookings.splice(index, 1);
+      else {
+        if (action === "cancel") restoreLoyaltyReward(booking);
+        bookings.splice(index, 1)
+      }
       saveBookings(bookings);
       adminActionModal.hidden = true;
       pendingAdminAction = null;
@@ -1597,7 +1812,11 @@ if (adminContent) {
       adminLoginRequired.hidden = true
     }
     adminContent.hidden = false;
-    renderAdminDashboard()
+    renderAdminDashboard();
+    if (window.location.hash === "#admin-inventory") {
+      const inventorySection = document.getElementById("admin-inventory");
+      if (inventorySection) inventorySection.scrollIntoView({ behavior: "smooth", block: "start" })
+    }
   }
   else {
     adminContent.hidden = true;
@@ -1661,6 +1880,11 @@ if (form) {
   start = document.getElementById("start-date"),
   end = document.getElementById("end-date"),
   branch = document.getElementById("pickup-branch"),
+  additionalRequest = document.getElementById("additional-request"),
+  phoneNumber = document.getElementById("customer-phone"),
+  phoneError = document.getElementById("phone-error"),
+  licenseNumber = document.getElementById("customer-license"),
+  licenseError = document.getElementById("license-error"),
   cardNumber = document.getElementById("card-number"),
   cardExpiry = document.getElementById("card-expiry"),
   cardSecurity = document.getElementById("card-security"),
@@ -1671,6 +1895,23 @@ if (form) {
   if (cardNumber) {
     cardNumber.addEventListener('input', function() {
       cardNumber.value = cardNumber.value.replace(/[^0-9]/g, '').slice(0, 16)
+    })
+  }
+  if (cardSecurity) {
+    cardSecurity.addEventListener("input", function() {
+      cardSecurity.value = cardSecurity.value.replace(/[^0-9]/g, "").slice(0, 3)
+    })
+  }
+  if (phoneNumber) {
+    phoneNumber.addEventListener("input", function() {
+      phoneNumber.value = phoneNumber.value.replace(/[^0-9]/g, "").slice(0, 8);
+      if (phoneError) phoneError.hidden = true
+    })
+  }
+  if (licenseNumber) {
+    licenseNumber.addEventListener("input", function() {
+      licenseNumber.value = licenseNumber.value.toUpperCase().replace(/\s/g, "").slice(0, 9);
+      if (licenseError) licenseError.hidden = true
     })
   }
   let pendingBooking = null,
@@ -1693,9 +1934,18 @@ if (form) {
   else if (request && request.pickupBranch) {
     branch.value = request.pickupBranch
   }
+  if (draft && draft.additionalRequest && additionalRequest) {
+    additionalRequest.value = draft.additionalRequest
+  }
   start.value = draft && draft.pickupDate ? draft.pickupDate : request && request.pickupDate ? request.pickupDate : "";
   end.value = draft && draft.returnDate ? draft.returnDate : request && request.returnDate ? request.returnDate : "";
-  end.min = start.value;
+  const localToday = new Date();
+  localToday.setMinutes(localToday.getMinutes() - localToday.getTimezoneOffset());
+  const todayDate = localToday.toISOString().slice(0, 10);
+  start.min = todayDate;
+  if (start.value && start.value < todayDate) start.value = "";
+  end.min = start.value || todayDate;
+  if (end.value && end.value < end.min) end.value = "";
 
   if (customer) {
     document.getElementById("customer-name").value = customer.name;
@@ -1706,6 +1956,7 @@ if (form) {
     const saved = {
       carId: select.value,
       pickupBranch: branch.value,
+      additionalRequest: additionalRequest ? additionalRequest.value : "",
       pickupDate: start.value,
       returnDate: end.value
     };
@@ -1747,9 +1998,35 @@ if (form) {
     message.hidden = false;
     return false
   }
+  function updateRewardsPreview() {
+    const panel = document.getElementById("rewards-preview"),
+    account = getCurrentAccount(),
+    points = accountRewardPoints(account),
+    car = vehicle[select.value];
+    let days = 0;
+    if (start.value && end.value && end.value >= start.value) {
+      days = Math.max(1, Math.ceil((new Date(end.value) - new Date(start.value)) / 86400000))
+    }
+    if (panel) {
+      if (points >= rewardThreshold) {
+        const discount = car && days ? Math.round(car.rate * days * 0.1 * 100) / 100 : 0;
+        panel.textContent = "Rewards balance: " + points + " points. Your 10% discount is ready and will use 1,000 points" + (discount ? " (S$" + discount.toFixed(2) + " off this rental)." : " on your next confirmed booking.")
+      }
+      else {
+        const earnText = car ? " You will earn " + rewardPointsForCategory(car.cat) + " points after staff confirms payment for this rental." : " City rentals earn 100 points, Family 200, and Premium 300 after staff confirms payment.";
+        panel.textContent = "Rewards balance: " + points + " points. Earn " + (rewardThreshold - points) + " more to unlock 10% off your next rental." + earnText
+      }
+    }
+    if (car && days) {
+      const discountAmount = points >= rewardThreshold ? Math.round(car.rate * days * 0.1 * 100) / 100 : 0;
+      show("draft-total", "S$" + (car.rate * days - discountAmount).toFixed(2) + (discountAmount ? " (after 10% rewards discount)" : ""))
+    }
+    else show("draft-total", "Choose a car and dates")
+  }
   function updateBookingSummary() {
     const car = vehicle[select.value],
     summary = document.getElementById("booking-summary");
+    updateRewardsPreview();
     if (!summary) return;
     if (!select.value && !start.value && !end.value) {
       summary.hidden = true;
@@ -1774,9 +2051,10 @@ if (form) {
     saveAndUpdateDraft()
   });
   branch.addEventListener("change", saveAndUpdateDraft);
+  if (additionalRequest) additionalRequest.addEventListener("change", saveAndUpdateDraft);
   start.addEventListener("change", function() {
-    end.min = start.value;
-    if (end.value && end.value < start.value) {
+    end.min = start.value || todayDate;
+    if (end.value && end.value < end.min) {
       end.value = ""
     }
     saveAndUpdateDraft()
@@ -1790,7 +2068,7 @@ if (form) {
   updateCarOptions();
   showCarAvailability(select.value);
   window.addEventListener("storage", function(e) {
-    if (!e.key || e.key === bookingsKey || e.key === bookingKey || e.key === fleetStatusKey || e.key === "azoomPaid") {
+      if (!e.key || e.key === bookingsKey || e.key === bookingKey || e.key === fleetStatusKey || e.key === "azoomPaid" || e.key === accountsKey) {
       updateCarOptions();
       showCarAvailability(select.value)
     }
@@ -1846,8 +2124,21 @@ if (form) {
       pendingBooking.paid = false;
       pendingBooking.paidAmount = 0;
       pendingBooking.inspection = null;
-      bookings.push(pendingBooking);
-      saveBookings(bookings);
+      const accountsSnapshot = localStorage.getItem(accountsKey);
+      try {
+        reserveLoyaltyReward(pendingBooking);
+        bookings.push(pendingBooking);
+        saveBookings(bookings)
+      }
+      catch (saveError) {
+        try {
+          if (accountsSnapshot === null) localStorage.removeItem(accountsKey);
+          else localStorage.setItem(accountsKey, accountsSnapshot)
+        }
+        catch (restoreError) {
+        }
+        throw saveError
+      }
       localStorage.removeItem(reservationDraftKey);
       cardNumber.value = "";
       cardExpiry.value = "";
@@ -1879,14 +2170,42 @@ if (form) {
       window.location.href = "account.html?next=" + encodeURIComponent("reservation.html" + window.location.search);
       return
     }
+    if (!validSingaporePhone(phoneNumber.value)) {
+      if (phoneError) {
+        phoneError.textContent = "Enter an 8-digit Singapore phone number starting with 3, 6, 8 or 9.";
+        phoneError.hidden = false
+      }
+      phoneNumber.focus();
+      return
+    }
+    if (phoneError) phoneError.hidden = true;
+    if (!start.value || start.value < todayDate) {
+      alert("Choose a pickup date from today onward.");
+      start.focus();
+      return
+    }
+    if (!end.value || end.value < start.value) {
+      alert("Choose a return date on or after the pickup date.");
+      end.focus();
+      return
+    }
+    if (!validSingaporeDrivingLicense(licenseNumber.value)) {
+      if (licenseError) {
+        licenseError.textContent = "Enter 9 characters: S, T, F, G or M, followed by 7 digits and a final letter.";
+        licenseError.hidden = false
+      }
+      licenseNumber.focus();
+      return
+    }
+    if (licenseError) licenseError.hidden = true;
     const car = vehicle[select.value];
     if (!showCarAvailability(select.value)) {
       updateCarOptions();
       return
     }
     let days = Math.ceil((new Date(end.value) - new Date(start.value)) / 86400000);
-    if (!car || !start.value || !end.value || end.value < start.value) {
-      alert("Choose a return date on or after the pickup date.");
+    if (!car) {
+      alert("Choose a car before continuing.");
       return
     }
     days = Math.max(1, days);
@@ -1903,18 +2222,24 @@ if (form) {
       cardError.hidden = false;
       return
     }
-    if (!/^[0-9]{3,4}$/.test(cardSecurity.value.trim())) {
-      cardError.textContent = "Enter a 3- or 4-digit security code.";
+    if (!/^[0-9]{3}$/.test(cardSecurity.value.trim())) {
+      cardError.textContent = "Enter a 3-digit security code.";
       cardError.hidden = false;
       return
     }
     cardError.hidden = true;
     const branchLabel = pickupBranchName(branch.value),
+    baseTotal = car.rate * days,
+    rentalDiscountAmount = accountRewardPoints(activeCustomer) >= rewardThreshold ? Math.round(baseTotal * 0.1 * 100) / 100 : 0,
+    additionalRequestLabel = additionalRequest && additionalRequest.value ? additionalRequest.options[additionalRequest.selectedIndex].textContent : "None",
     booking = {
       reference: "AZ-" + String(Date.now()),
       customerName: document.getElementById("customer-name").value,
       email: document.getElementById("customer-email").value,
       phone: document.getElementById("customer-phone").value,
+      drivingLicense: licenseNumber.value.trim().toUpperCase(),
+      additionalRequest: additionalRequest ? additionalRequest.value : "",
+      additionalRequestLabel: additionalRequestLabel,
       carId: select.value,
       carName: car.name,
       category: car.cat,
@@ -1924,9 +2249,21 @@ if (form) {
       pickupDate: start.value,
       returnDate: end.value,
       rentalDays: days,
-      estimatedTotal: car.rate * days
+      rentalDiscountAmount: rentalDiscountAmount,
+      rentalDiscountPercent: rentalDiscountAmount ? 10 : 0,
+      rewardsPointsRedeemed: rentalDiscountAmount ? rewardThreshold : 0,
+      estimatedTotal: baseTotal - rentalDiscountAmount
     };
     pendingBooking = booking;
+    show("review-customer", booking.customerName);
+    show("review-email", booking.email);
+    show("review-car", booking.carName + " · " + booking.category);
+    show("review-branch", booking.pickupBranch);
+    show("review-location", booking.pickupLocation);
+    show("review-dates", booking.pickupDate + " to " + booking.returnDate + " · " + days + (days === 1 ? " day" : " days"));
+    show("review-license", maskDrivingLicense(booking.drivingLicense));
+    show("review-request", booking.additionalRequestLabel);
+    show("review-total", money(booking.estimatedTotal));
     if (confirmModal) {
       confirmModal.hidden = false
     }
@@ -1946,6 +2283,9 @@ if (empty && box) {
     show("confirm-name", booking.customerName);
     show("confirm-email", booking.email);
     show("confirm-phone", booking.phone);
+    show("confirm-license", maskDrivingLicense(booking.drivingLicense));
+    show("confirm-request", booking.additionalRequestLabel || "None");
+    show("confirm-email-status", "Email confirmation sent to " + booking.email);
     show("confirm-car", booking.carName);
     show("confirm-category", booking.category);
     show("confirm-branch", booking.pickupBranch);
@@ -1957,7 +2297,10 @@ if (empty && box) {
     show("confirm-return", booking.returnDate);
     show("confirm-rate", money(booking.dailyRate) + " per day");
     show("confirm-total", money(booking.estimatedTotal));
-    const receipt = "AZoom Car Rental - Reservation Confirmation\nReceipt number: " + booking.reference + "\nCustomer: " + booking.customerName + "\nEmail: " + booking.email + "\nPhone: " + booking.phone + "\nVehicle: " + booking.carName + " (" + booking.category + ")\nPickup: " + booking.pickupBranch + "\nPickup location: " + (booking.pickupLocation || pickupLocation(booking.pickupBranch)) + "\nBarcode value: " + booking.reference + "\nPickup date: " + booking.pickupDate + "\nReturn date: " + booking.returnDate + "\nDays: " + booking.rentalDays + "\nRate: " + money(booking.dailyRate) + "\nEstimated amount: " + money(booking.estimatedTotal),
+    const rewardRow = document.getElementById("confirm-rewards-row");
+    if (rewardRow) rewardRow.hidden = !(Number(booking.rentalDiscountAmount || 0) > 0);
+    show("confirm-rewards", Number(booking.rentalDiscountAmount || 0) > 0 ? "10% off · −" + money(booking.rentalDiscountAmount) + " · 1,000 points used" : "");
+    const receipt = "AZoom Car Rental - Reservation Confirmation\nReceipt number: " + booking.reference + "\nCustomer: " + booking.customerName + "\nEmail: " + booking.email + "\nPhone: " + booking.phone + "\nDriving licence: " + maskDrivingLicense(booking.drivingLicense) + "\nAdditional request: " + (booking.additionalRequestLabel || "None") + "\nVehicle: " + booking.carName + " (" + booking.category + ")\nPickup: " + booking.pickupBranch + "\nPickup location: " + (booking.pickupLocation || pickupLocation(booking.pickupBranch)) + "\nBarcode value: " + booking.reference + "\nPickup date: " + booking.pickupDate + "\nReturn date: " + booking.returnDate + "\nDays: " + booking.rentalDays + "\nRate: " + money(booking.dailyRate) + "\nRewards discount: " + money(booking.rentalDiscountAmount || 0) + "\nEstimated amount: " + money(booking.estimatedTotal),
     blob = new Blob([receipt], { type: "text/plain" }),
     link = document.getElementById("download-link");
     if (link) {
@@ -2052,7 +2395,7 @@ function renderBill() {
     if (payButton) payButton.disabled = true;
     return
   }
-  const rent = Number(booking.dailyRate) * Number(booking.rentalDays),
+  const rent = bookingRentalCharge(booking),
   inspection = booking.inspection,
   damage = bookingDamageTotal(booking),
   label = inspection ? damage ? "Repair costs recorded" : "Inspection complete; no repair costs" : "No inspection saved";
@@ -2061,11 +2404,11 @@ function renderBill() {
   show("bill-car", booking.carName);
   show("bill-days", booking.rentalDays);
   show("bill-inspection", label);
-  show("bill-rent-calc", money(booking.dailyRate) + " x " + booking.rentalDays + " days");
+  show("bill-rent-calc", money(booking.dailyRate) + " x " + booking.rentalDays + " days" + (Number(booking.rentalDiscountAmount || 0) > 0 ? " less " + money(booking.rentalDiscountAmount) + " rewards discount" : ""));
   show("bill-rent", money(rent));
   show("bill-damage-calc", damage ? "Recorded after inspection" : "No damage charge");
   show("bill-damage", money(damage));
-  show("bill-total", money(rent + damage));
+  show("bill-total", money(bookingTotal(booking)));
   const payButton = document.getElementById("pay-btn");
   if (payButton) payButton.disabled = !!(booking.paid || booking.billReceived || booking.paymentSubmitted)
 }
@@ -2100,7 +2443,7 @@ if (pay) {
 }
 
 window.addEventListener("storage", function(e) {
-  if (!e.key || e.key === bookingsKey || e.key === bookingKey || e.key === fleetStatusKey || e.key === "azoomPaid" || e.key === "azoomPaidAmount" || e.key === inspectKey) {
+  if (!e.key || e.key === bookingsKey || e.key === bookingKey || e.key === fleetStatusKey || e.key === "azoomPaid" || e.key === "azoomPaidAmount" || e.key === inspectKey || e.key === accountsKey) {
     if (document.getElementById("search-summary") && window.location.search.indexOf("?search=1") === 0) {
       window.location.reload();
       return
@@ -2112,7 +2455,7 @@ window.addEventListener("storage", function(e) {
     if (billSelect) renderBill();
     const current = getCurrentAccount();
     if (current && document.getElementById("account-state")) {
-      showAccountReservation(current)
+      showAccount(current)
     }
   }
 });

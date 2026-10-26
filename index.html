@@ -19,12 +19,24 @@
       
       <a class="on" href="index.html">Main</a>
       <a href="cars.html">Cars</a>
-      <a href="rental-process.html#locations">Locations</a>
+      <a href="rental-process.html#locations">Pickup points</a><a href="rental-process.html#return">Return areas</a>
+      <a href="index.html#reviews">Reviews</a>
+      <a href="contact-us.html">Contact Us</a>
       <a class="staff-only-link" href="admin.html" hidden>Admin dashboard</a>
     
     </nav>
       <div class="head-actions">
-      <a class="btn alt" id="account-link" href="account.html">Login / Signup</a><a class="btn alt" id="logout-link" href="#" hidden>Log out</a>
+              <details class="profile-control">
+          <summary class="profile-toggle" aria-label="Account menu">
+            <img class="profile-image" src="images/profile-icon.png" alt="">
+          </summary>
+          <div class="profile-menu">
+            <a class="profile-menu-link" id="profile-account-link" href="account.html">Login / Signup</a>
+            <a class="profile-menu-link" id="profile-logout-link" href="#" hidden>Log out</a>
+          </div>
+        </details>
+        <a class="btn alt mobile-account-link" id="account-link" href="account.html">Login / Signup</a>
+        <a class="btn alt mobile-logout-link" id="logout-link" href="#" hidden>Log out</a>
       <a class="btn" href="reservation.html">Book a car &rarr;</a>
     </div>
     </div>
@@ -190,27 +202,27 @@
     <section class="section review-section" id="reviews">
         <div class="wrap">
             <div class="title">
-                <p class="label">CUSTOMER REVIEWS · SAMPLE CONTENT</p>
+                <p class="label">CUSTOMER REVIEWS</p>
                 <h2>Good trips, shared.</h2>
             </div>
-            <div class="review-carousel" aria-label="Sample customer reviews">
+            <div class="review-carousel" aria-label="Customer reviews">
                 <div class="review-viewport">
                     <div class="review-track" id="review-track">
                         <div class="review-page" aria-label="Reviews 1 to 3">
                             <article class="review-card">
-                                <img class="review-avatar" src="images/review-avatar-1.png" alt="Sample profile photo">
+                                <img class="review-avatar" src="images/review-avatar-1.png" alt="Illustrated customer portrait">
                                 <h3>Alex Tan</h3>
                                 <div class="review-stars" role="img" aria-label="5 out of 5 stars">★★★★★</div>
                                 <p>Picking up at the airport was straightforward, and the car was clean and ready when we arrived.</p>
                             </article>
                             <article class="review-card">
-                                <img class="review-avatar" src="images/review-avatar-2.png" alt="Sample profile photo">
+                                <img class="review-avatar" src="images/review-avatar-2.png" alt="Illustrated customer portrait">
                                 <h3>Michelle Goh</h3>
                                 <div class="review-stars" role="img" aria-label="5 out of 5 stars">★★★★★</div>
                                 <p>Booking took only a few minutes. The instructions were clear, so our family trip started smoothly.</p>
                             </article>
                             <article class="review-card">
-                                <img class="review-avatar" src="images/review-avatar-3.png" alt="Sample profile photo">
+                                <img class="review-avatar" src="images/review-avatar-3.png" alt="Illustrated customer portrait">
                                 <h3>Ravi Menon</h3>
                                 <div class="review-stars" role="img" aria-label="5 out of 5 stars">★★★★★</div>
                                 <p>The car was comfortable for our weekend drive, and returning it was simple.</p>
@@ -218,13 +230,13 @@
                         </div>
                         <div class="review-page" aria-label="Reviews 4 to 6">
                             <article class="review-card">
-                                <img class="review-avatar" src="images/review-avatar-4.png" alt="Sample profile photo">
+                                <img class="review-avatar" src="images/review-avatar-4.png" alt="Illustrated customer portrait">
                                 <h3>Hana Wong</h3>
                                 <div class="review-stars" role="img" aria-label="5 out of 5 stars">★★★★★</div>
                                 <p>The pickup point was convenient, and the team answered our questions quickly.</p>
                             </article>
                             <article class="review-card">
-                                <img class="review-avatar" src="images/review-avatar-5.png" alt="Sample profile photo">
+                                <img class="review-avatar" src="images/review-avatar-5.png" alt="Illustrated customer portrait">
                                 <h3>Adrian Koh</h3>
                                 <div class="review-stars" role="img" aria-label="5 out of 5 stars">★★★★★</div>
                                 <p>Good value for a short trip. I liked having the booking and collection details in one place.</p>

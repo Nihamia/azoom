@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Compare sixteen sample AZoom electric cars.">
+    <meta name="description" content="Compare sixteen AZoom electric cars.">
     <title>Our Cars | AZoom</title>
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
@@ -19,12 +19,24 @@
       
       <a href="index.html">Main</a>
       <a class="on" href="cars.html">Cars</a>
-      <a href="rental-process.html#locations">Locations</a>
+      <a href="rental-process.html#locations">Pickup points</a><a href="rental-process.html#return">Return areas</a>
+      <a href="index.html#reviews">Reviews</a>
+      <a href="contact-us.html">Contact Us</a>
       <a class="staff-only-link" href="admin.html" hidden>Admin dashboard</a>
     
     </nav>
       <div class="head-actions">
-      <a class="btn alt" id="account-link" href="account.html">Login / Signup</a><a class="btn alt" id="logout-link" href="#" hidden>Log out</a>
+              <details class="profile-control">
+          <summary class="profile-toggle" aria-label="Account menu">
+            <img class="profile-image" src="images/profile-icon.png" alt="">
+          </summary>
+          <div class="profile-menu">
+            <a class="profile-menu-link" id="profile-account-link" href="account.html">Login / Signup</a>
+            <a class="profile-menu-link" id="profile-logout-link" href="#" hidden>Log out</a>
+          </div>
+        </details>
+        <a class="btn alt mobile-account-link" id="account-link" href="account.html">Login / Signup</a>
+        <a class="btn alt mobile-logout-link" id="logout-link" href="#" hidden>Log out</a>
       <a class="btn" href="reservation.html">Book a car &rarr;</a>
     </div>
     </div>
@@ -35,7 +47,7 @@
         <div class="wrap">
           <p class="label">THE AZOOM FLEET</p>
           <h1>Find the right electric car.</h1>
-          <p>Browse sixteen sample cars in three categories.</p>
+          <p>Browse sixteen electric cars in three categories.</p>
           <div class="tabs">
             <a href="#city-ev">City EVs</a>
             <a href="#family-ev">Family EVs</a>
@@ -52,14 +64,14 @@
       <section class="section">
         <div class="wrap">
           <div class="title">
-            <p class="label">SAMPLE VEHICLES</p>
+            <p class="label">OUR VEHICLES</p>
             <h2>Compare the fleet.</h2>
-            <p>Each model has its own sample daily rate. Choose a car to reserve.</p>
+            <p>Each model has its own daily rate. Choose a car to reserve.</p>
           </div>
           <section class="group" id="city-ev">
             <div class="group-head">
               <h2>City EVs</h2>
-              <p>Sample rates: <b>S$72-S$88 / day</b></p>
+              <p>Daily rates: <b>S$72-S$88 / day</b></p>
             </div>
             <div class="cars">
               <article class="car"><span class="status available">Available</span>
@@ -151,7 +163,7 @@
           <section class="group" id="family-ev">
             <div class="group-head">
               <h2>Family EVs</h2>
-              <p>Sample rates: <b>S$105-S$138 / day</b></p>
+              <p>Daily rates: <b>S$105-S$138 / day</b></p>
             </div>
             <div class="cars">
               <article class="car"><span class="status available">Available</span>
@@ -229,7 +241,7 @@
           <section class="group" id="premium-ev">
             <div class="group-head">
               <h2>Premium EVs</h2>
-              <p>Sample rates: <b>S$178-S$288 / day</b></p>
+              <p>Daily rates: <b>S$178-S$288 / day</b></p>
             </div>
             <div class="cars">
               <article class="car"><span class="status available">Available</span>

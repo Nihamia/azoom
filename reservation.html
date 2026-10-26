@@ -19,12 +19,24 @@
       
       <a href="index.html">Main</a>
       <a href="cars.html">Cars</a>
-      <a href="rental-process.html#locations">Locations</a>
+      <a href="rental-process.html#locations">Pickup points</a><a href="rental-process.html#return">Return areas</a>
+      <a href="index.html#reviews">Reviews</a>
+      <a href="contact-us.html">Contact Us</a>
       <a class="staff-only-link" href="admin.html" hidden>Admin dashboard</a>
     
     </nav>
       <div class="head-actions">
-      <a class="btn alt" id="account-link" href="account.html">Login / Signup</a><a class="btn alt" id="logout-link" href="#" hidden>Log out</a>
+              <details class="profile-control">
+          <summary class="profile-toggle" aria-label="Account menu">
+            <img class="profile-image" src="images/profile-icon.png" alt="">
+          </summary>
+          <div class="profile-menu">
+            <a class="profile-menu-link" id="profile-account-link" href="account.html">Login / Signup</a>
+            <a class="profile-menu-link" id="profile-logout-link" href="#" hidden>Log out</a>
+          </div>
+        </details>
+        <a class="btn alt mobile-account-link" id="account-link" href="account.html">Login / Signup</a>
+        <a class="btn alt mobile-logout-link" id="logout-link" href="#" hidden>Log out</a>
       <a class="btn" href="reservation.html">Book a car &rarr;</a>
     </div>
     </div>
@@ -50,7 +62,9 @@
               <p><b>Pickup branch:</b> <span id="draft-branch"></span></p>
               <p><b>Pickup date:</b> <span id="draft-pickup">Not selected</span></p>
               <p><b>Return date:</b> <span id="draft-return">Not selected</span></p>
+              <p><b>Estimated rental:</b> <span id="draft-total">Choose a car and dates</span></p>
             </div>
+            <div class="rewards-preview" id="rewards-preview" aria-live="polite">Rewards points are earned after staff confirms a paid bill.</div>
             <div class="fields">
               <div class="field wide">
                 <label for="car-choice">Choose an electric car</label>
@@ -95,6 +109,16 @@
               </div>
               <div class="field"><label for="start-date">Pickup date</label><input id="start-date" type="date" required></div>
               <div class="field"><label for="end-date">Return date</label><input id="end-date" type="date" required></div>
+              <div class="field wide">
+                <label for="additional-request">Optional extras and accessibility requests</label>
+                <select id="additional-request">
+                  <option value="">No additional request</option>
+                  <option value="child-seat">Child safety seat</option>
+                  <option value="pet-friendly">Pet-friendly vehicle request</option>
+                  <option value="wheelchair-support">Wheelchair accessibility request</option>
+                </select>
+                <p class="small">Choose any extra or support you need. All requests depend on availability and will be confirmed by our staff.</p>
+              </div>
             </div>
             <p class="label top">CUSTOMER DETAILS</p>
             <h2>Who is driving?</h2>
@@ -102,7 +126,18 @@
             <div class="fields">
               <div class="field wide"><label for="customer-name">Full name</label><input id="customer-name" type="text" required readonly></div>
               <div class="field"><label for="customer-email">Email</label><input id="customer-email" type="email" required readonly></div>
-              <div class="field"><label for="customer-phone">Phone</label><input id="customer-phone" type="tel" required></div>
+              <div class="field">
+                <label for="customer-phone">Singapore phone number</label>
+                <input id="customer-phone" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="8" placeholder="91234567" aria-describedby="phone-help phone-error" required>
+                <p class="small" id="phone-help">Enter 8 digits starting with 3, 6, 8 or 9.</p>
+                <p class="msg" id="phone-error" role="status" aria-live="polite" hidden></p>
+              </div>
+              <div class="field wide">
+                <label for="customer-license">Singapore driving licence number</label>
+                <input id="customer-license" type="text" maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="S1234567A" aria-describedby="license-help license-error" required>
+                <p class="small" id="license-help">Enter 9 characters: S, T, F, G or M, followed by 7 digits and a final letter. Format is checked only.</p>
+                <p class="msg" id="license-error" role="status" aria-live="polite" hidden></p>
+              </div>
             </div>
             <p class="label top">PAYMENT METHOD</p>
             <h2>Credit card</h2>
@@ -118,21 +153,37 @@
               </div>
               <div class="field">
                 <label for="card-security">Security code</label>
-                <input id="card-security" type="text" inputmode="numeric" autocomplete="cc-csc" maxlength="4" pattern="[0-9]{3,4}" required>
+                <input id="card-security" type="text" inputmode="numeric" autocomplete="cc-csc" maxlength="3" pattern="[0-9]{3}" required>
               </div>
             </div>
             <p class="msg" id="card-error" role="status" aria-live="polite" hidden></p>
-            <button class="btn" type="submit">Confirm reservation &rarr;</button>
+            <div class="terms-consent wide">
+              <label for="terms-agree"><input id="terms-agree" type="checkbox" required> I agree to the terms and conditions for this reservation.</label>
+            </div>
+            <p class="terms-link"><a class="text-link" href="terms.html" target="_blank" rel="noopener">View the Terms and Conditions</a></p>
+            <button class="btn" type="submit">Review reservation &rarr;</button>
             <p class="note">Estimate uses the sample daily rate times the number of rental days. Any damage charges are added after inspection.</p>
           </form>
           <div class="confirm-modal" id="confirm-modal" hidden>
-            <div class="confirm-box" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+            <div class="confirm-box reservation-confirm-box" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
               <p class="label">FINAL CHECK</p>
               <h2 id="confirm-title">Confirm this reservation?</h2>
-              <p>Choose Yes to save your booking, or Still deciding to return to your booking details.</p>
+              <p>Review your booking details, then confirm or edit your reservation.</p>
+              <dl class="dl reservation-review-summary">
+                <div><dt>Customer</dt><dd id="review-customer"></dd></div>
+                <div><dt>Email</dt><dd id="review-email"></dd></div>
+                <div><dt>Car</dt><dd id="review-car"></dd></div>
+                <div><dt>Pickup branch</dt><dd id="review-branch"></dd></div>
+                <div><dt>Collection point</dt><dd id="review-location"></dd></div>
+                <div><dt>Rental dates</dt><dd id="review-dates"></dd></div>
+                <div><dt>Driving licence</dt><dd id="review-license"></dd></div>
+                <div><dt>Additional request</dt><dd id="review-request"></dd></div>
+              </dl>
+              <p class="reservation-review-total"><span>Estimated rental</span><b id="review-total"></b></p>
+              <p class="small">Your card details are checked for format only; this page does not process payment.</p>
               <div class="confirm-actions">
-                <button class="btn" id="confirm-yes" type="button">Yes</button>
-                <button class="btn alt" id="confirm-later" type="button">Still deciding</button>
+                <button class="btn" id="confirm-yes" type="button">Confirm reservation</button>
+                <button class="btn alt" id="confirm-later" type="button">Edit booking</button>
               </div>
             </div>
           </div>

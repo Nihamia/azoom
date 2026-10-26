@@ -19,12 +19,24 @@
       
       <a href="index.html">Main</a>
       <a href="cars.html">Cars</a>
-      <a href="rental-process.html#locations">Locations</a>
+      <a href="rental-process.html#locations">Pickup points</a><a href="rental-process.html#return">Return areas</a>
+      <a href="index.html#reviews">Reviews</a>
+      <a href="contact-us.html">Contact Us</a>
       <a class="staff-only-link" href="admin.html" hidden>Admin dashboard</a>
     
     </nav>
       <div class="head-actions">
-      <a class="btn alt" id="account-link" href="account.html">Login / Signup</a><a class="btn alt" id="logout-link" href="#" hidden>Log out</a>
+              <details class="profile-control">
+          <summary class="profile-toggle" aria-label="Account menu">
+            <img class="profile-image" src="images/profile-icon.png" alt="">
+          </summary>
+          <div class="profile-menu">
+            <a class="profile-menu-link" id="profile-account-link" href="account.html">Login / Signup</a>
+            <a class="profile-menu-link" id="profile-logout-link" href="#" hidden>Log out</a>
+          </div>
+        </details>
+        <a class="btn alt mobile-account-link" id="account-link" href="account.html">Login / Signup</a>
+        <a class="btn alt mobile-logout-link" id="logout-link" href="#" hidden>Log out</a>
       <a class="btn" href="reservation.html">Book a car &rarr;</a>
     </div>
     </div>
@@ -57,6 +69,15 @@
               <div class="field wide">
                 <label for="signup-email">Email</label>
                 <input id="signup-email" type="email" autocomplete="email" required>
+              </div>
+              <div class="field wide">
+                <label for="signup-otp">Email verification code</label>
+                <div class="otp-entry">
+                  <input id="signup-otp" type="text" inputmode="numeric" maxlength="5" autocomplete="one-time-code" aria-describedby="signup-otp-help signup-verify-msg">
+                  <button class="btn" id="verify-email-btn" type="button">Verify email</button>
+                </div>
+                <p class="small" id="signup-otp-help">Enter the five-digit code to verify your email address.</p>
+                <p class="msg" id="signup-verify-msg" role="status" aria-live="polite" hidden></p>
               </div>
               <div class="field wide">
                 <label for="signup-password">Password</label>

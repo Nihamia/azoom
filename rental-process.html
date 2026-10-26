@@ -16,10 +16,23 @@
     <div class="nav-menu" id="site-menu">
       <nav class="nav" aria-label="Main navigation">
 <a href="index.html">Main</a><a href="cars.html">Cars</a>
-<a class="on" href="rental-process.html#locations">Locations</a>
+<a class="on" href="rental-process.html#locations">Pickup points</a>
+      <a href="rental-process.html#return">Return areas</a>
+      <a href="index.html#reviews">Reviews</a>
+      <a href="contact-us.html">Contact Us</a>
 <a class="staff-only-link" href="admin.html" hidden>Admin dashboard</a>
 </nav>
-      <div class="head-actions"><a class="btn alt" id="account-link" href="account.html">Login / Signup</a><a class="btn alt" id="logout-link" href="#" hidden>Log out</a><a class="btn" href="reservation.html">Book a car &rarr;</a></div>
+      <div class="head-actions">        <details class="profile-control">
+          <summary class="profile-toggle" aria-label="Account menu">
+            <img class="profile-image" src="images/profile-icon.png" alt="">
+          </summary>
+          <div class="profile-menu">
+            <a class="profile-menu-link" id="profile-account-link" href="account.html">Login / Signup</a>
+            <a class="profile-menu-link" id="profile-logout-link" href="#" hidden>Log out</a>
+          </div>
+        </details>
+        <a class="btn alt mobile-account-link" id="account-link" href="account.html">Login / Signup</a>
+        <a class="btn alt mobile-logout-link" id="logout-link" href="#" hidden>Log out</a><a class="btn" href="reservation.html">Book a car &rarr;</a></div>
     </div>
 </div></header>
 <main id="main">
@@ -88,7 +101,6 @@
 <li class="return-item"><span class="return-no">19</span><div><h4>Bukit Batok</h4><p><b>Car park BBM9:</b> Block 395A, Bukit Batok West Avenue 5.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 395A's sheltered entrance.</p></div></li>
 <li class="return-item"><span class="return-no">20</span><div><h4>Bukit Panjang</h4><p><b>Car park BJ26:</b> Block 449A, Bukit Panjang Ring Road.</p><p><b>Nearest block / key box:</b> AZoom drop box below Block 449A's sheltered entrance.</p></div></li>
 </ol>
-<p class="location-note">Car park codes, addresses and coordinates come from HDB's <a href="https://data.gov.sg/datasets/d_23f946fa557947f93a8043bbef41dd09/view" target="_blank" rel="noopener">Carpark Information dataset</a>. Key-box placements are proposed for this project and need site approval before real use.</p>
 </div></section>
 </main>
 <footer class="foot"><div class="wrap foot-grid">

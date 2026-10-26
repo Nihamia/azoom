@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Customer checklist for checking an AZoom rental car before pickup.">
+  <title>Pickup Checklist | AZoom</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body id="top">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="head">
+    <div class="wrap head-in">
+      <a class="brand" href="index.html"><img src="images/mainLogo-transparent.png" alt="AZoom Car Rental"></a>
+      <button class="nav-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="site-menu"><span></span><span></span><span></span></button>
+      <div class="nav-menu" id="site-menu">
+        <nav class="nav" aria-label="Main navigation">
+          <a href="index.html">Main</a>
+          <a href="cars.html">Cars</a>
+          <a href="rental-process.html#locations">Pickup points</a><a href="rental-process.html#return">Return areas</a>
+      <a href="index.html#reviews">Reviews</a>
+      <a href="contact-us.html">Contact Us</a>
+          <a class="staff-only-link" href="admin.html" hidden>Admin dashboard</a>
+        </nav>
+        <div class="head-actions">
+                  <details class="profile-control">
+          <summary class="profile-toggle" aria-label="Account menu">
+            <img class="profile-image" src="images/profile-icon.png" alt="">
+          </summary>
+          <div class="profile-menu">
+            <a class="profile-menu-link" id="profile-account-link" href="account.html">Login / Signup</a>
+            <a class="profile-menu-link" id="profile-logout-link" href="#" hidden>Log out</a>
+          </div>
+        </details>
+        <a class="btn alt mobile-account-link" id="account-link" href="account.html">Login / Signup</a>
+        <a class="btn alt mobile-logout-link" id="logout-link" href="#" hidden>Log out</a>
+          <a class="btn" href="reservation.html">Book a car &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main id="main">
+    <section class="banner">
+      <div class="wrap">
+        <p class="label">BEFORE YOU COLLECT</p>
+        <h1>Check your car before you go.</h1>
+        <p>A few quick checks with staff can help you record the car's condition before your rental begins.</p>
+      </div>
+    </section>
+    <section class="section">
+      <div class="wrap">
+        <article class="panel customer-checklist">
+          <p class="label">CUSTOMER PICKUP CHECKLIST</p>
+          <h2>Walk around and check these items.</h2>
+          <p id="customer-checklist-context">Tick each box as you check the vehicle with staff. If you notice anything, tell staff and ask them to record it before you drive away.</p>
+          <div class="note customer-check-warning" role="note">
+            <strong>Important damage notice:</strong> Damage identified after the car has been rented out will be treated as the customer's responsibility, even if it was overlooked during this checklist. Please report any marks or concerns to staff before leaving.
+          </div>
+          <div class="customer-checklist-list">
+            <label class="customer-check-item"><input type="checkbox"><span><strong>Exterior and bodywork</strong>Look around the car for scratches, dents, paint marks or damage to the bumpers.</span></label>
+            <label class="customer-check-item"><input type="checkbox"><span><strong>Windscreen and glass</strong>Check the windscreen, windows and other glass for cracks, chips or marks.</span></label>
+            <label class="customer-check-item"><input type="checkbox"><span><strong>Tyres and wheels</strong>Look for visible tyre damage and scratches or dents on the wheels.</span></label>
+            <label class="customer-check-item"><input type="checkbox"><span><strong>Lights and mirrors</strong>Check the mirrors and ask staff to confirm the lights and indicators work.</span></label>
+            <label class="customer-check-item"><input type="checkbox"><span><strong>Interior and charging cable</strong>Check the seats, dashboard, main controls and charging cable for visible damage or missing items. Note the car's charge level before setting off.</span></label>
+          </div>
+          <p class="small">These checks help you and staff note the vehicle's condition at pickup. They do not replace the staff inspection or the rental terms.</p>
+          <div class="customer-checklist-actions">
+            <a class="btn alt" href="account.html">Back to My Account</a>
+            <a class="btn" href="cars.html">View cars</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer class="foot">
+    <div class="wrap foot-grid">
+      <div><a class="brand light" href="index.html"><img src="images/mainLogo-transparent.png" alt="AZoom Car Rental"></a><p>Electric drives around Singapore.</p></div>
+      <div><h3>Explore</h3><a href="index.html">Main</a><a href="cars.html">Our cars</a><a href="reservation.html">Reserve a car</a></div>
+      <div><h3>Rental process</h3><a href="rental-process.html#pickup">Pickup</a><a href="rental-process.html#return">Return</a></div>
+      <div class="footer-contact">
+        <h3>Contact</h3>
+        <p>+65 89273182</p>
+        <p>azoomhelp@gmail.com</p>
+        <div class="social-links">
+          <a href="#" aria-label="Facebook"><img src="images/facebook.svg" alt=""></a>
+          <a href="#" aria-label="Instagram"><img src="images/instagram.svg" alt=""></a>
+          <a href="#" aria-label="WhatsApp"><img src="images/whatsapp.svg" alt=""></a>
+        </div>
+      </div>
+    </div>
+    <div class="wrap foot-end">
+      <span>&copy; 2026 AZoom Car Rental. All rights reserved.</span>
+      <a href="privacy.html">Privacy</a>
+      <a href="#top">Back to top &uarr;</a>
+    </div>
+  </footer>
+</body>
+</html>
