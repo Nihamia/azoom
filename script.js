@@ -2125,11 +2125,32 @@ if (reviewTrack) {
   const reviewPrev = document.getElementById("review-prev");
   const reviewNext = document.getElementById("review-next");
   const reviewCount = document.getElementById("review-count");
+  const reviewCarousel = document.querySelector(".review-carousel");
   let currentReviewPage = 0;
+  let reviewSlideTimer;
+  let reviewSlideDirection = 1;
+
+  function startReviewAutoSlide() {
+    window.clearInterval(reviewSlideTimer);
+    if (reviewPages.length > 1) {
+      reviewSlideTimer = window.setInterval(function() {
+        let nextPage = currentReviewPage + reviewSlideDirection;
+        if (nextPage < 0 || nextPage >= reviewPages.length) {
+          reviewSlideDirection = reviewSlideDirection * -1;
+          nextPage = currentReviewPage + reviewSlideDirection;
+        }
+        showReviewPage(nextPage);
+      }, 2000);
+    }
+  }
+
+  function stopReviewAutoSlide() {
+    window.clearInterval(reviewSlideTimer);
+  }
 
   function showReviewPage(page) {
     currentReviewPage = page;
-    reviewTrack.style.transform = "translateX(-" + (page * 50) + "%)";
+    reviewTrack.style.transform = "translateX(-" + (page * (100 / reviewPages.length)) + "%)";
     reviewPrev.disabled = page === 0;
     reviewNext.disabled = page === reviewPages.length - 1;
     for (let i = 0; i < reviewDots.length; i++) {
@@ -2140,16 +2161,29 @@ if (reviewTrack) {
   }
 
   reviewPrev.addEventListener("click", function() {
-    if (currentReviewPage > 0) showReviewPage(currentReviewPage - 1);
+    if (currentReviewPage > 0) {
+      reviewSlideDirection = -1;
+      showReviewPage(currentReviewPage - 1);
+    }
   });
   reviewNext.addEventListener("click", function() {
-    if (currentReviewPage < reviewPages.length - 1) showReviewPage(currentReviewPage + 1);
+    if (currentReviewPage < reviewPages.length - 1) {
+      reviewSlideDirection = 1;
+      showReviewPage(currentReviewPage + 1);
+    }
   });
   for (let i = 0; i < reviewDots.length; i++) {
     reviewDots[i].addEventListener("click", function() {
+      reviewSlideDirection = i >= currentReviewPage ? 1 : -1;
       showReviewPage(i);
     });
   }
+
+  if (reviewCarousel) {
+    reviewCarousel.addEventListener("mouseenter", stopReviewAutoSlide);
+    reviewCarousel.addEventListener("mouseleave", startReviewAutoSlide);
+  }
+  startReviewAutoSlide();
 }
 
 const navToggles = document.querySelectorAll(".nav-toggle");

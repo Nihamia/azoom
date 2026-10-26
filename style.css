@@ -396,6 +396,14 @@ p {
   padding: 20px;
   border-radius: 12px;
   background: white;
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+
+.step:hover,
+.step:focus-within {
+  z-index: 2;
+  transform: translateY(-5px) scale(1.015);
+  box-shadow: 0 16px 32px #10254826;
 }
 
 .step b {
@@ -492,6 +500,17 @@ p {
 
 .car:hover,
 .car:focus-within {
+  z-index: 2;
+  transform: translateY(-5px) scale(1.015);
+  box-shadow: 0 16px 32px #10254826;
+}
+
+.cats .cat {
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+
+.cats .cat:hover,
+.cats .cat:focus-within {
   z-index: 2;
   transform: translateY(-5px) scale(1.015);
   box-shadow: 0 16px 32px #10254826;
@@ -1461,8 +1480,8 @@ p {
 /* Homepage sample reviews */
 .review-section{background:#fff}
 .review-viewport{overflow:hidden}
-.review-track{display:flex;width:200%;transition:transform .45s ease}
-.review-page{flex:0 0 50%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.review-track{display:flex;width:400%;transition:transform .45s ease}
+.review-page{flex:0 0 25%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
 .review-card{display:flex;flex-direction:column;align-items:center;min-height:310px;padding:24px 22px;border:1px solid #e8e1d8;border-radius:14px;background:#fff;box-shadow:0 10px 24px #1025480b;text-align:center}
 .review-avatar{width:92px;height:92px;flex:0 0 92px;border:3px solid #fff;border-radius:50%;object-fit:cover;object-position:center 25%;box-shadow:0 0 0 1px #e8e1d8}
 .review-card h3{margin:14px 0 6px;color:#102548;font-size:19px}
