@@ -111,19 +111,21 @@ p {
 
 .brand {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  width: max-content;
   color: #102548;
   line-height: 1;
 }
 
-.brand b {
-  font-size: 23px;
+.brand img {
+  display: block;
+  width: 150px;
+  max-width: 100%;
+  height: auto;
 }
 
-.brand small {
-  margin-top: 5px;
-  font-size: 9px;
-  letter-spacing: 2px;
+.brand.light img {
+  filter: brightness(0) invert(1);
 }
 
 .nav {
