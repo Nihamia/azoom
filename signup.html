@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Create an AZoom customer account.">
   <title>Sign Up | AZoom</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20261029-profile-menu">
   <script src="script.js" defer></script>
 </head>
 <body id="top">
@@ -68,15 +68,17 @@
               </div>
               <div class="field wide">
                 <label for="signup-email">Email</label>
-                <input id="signup-email" type="email" autocomplete="email" required>
+                <input id="signup-email" type="email" autocomplete="email" pattern="^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+\.[A-Za-z]{2,}$" required>
+                <button class="btn" id="send-verification-btn" type="button">Send OTP</button>
+                <p class="msg" id="signup-send-msg" role="status" aria-live="polite" hidden></p>
               </div>
               <div class="field wide">
                 <label for="signup-otp">Email verification code</label>
                 <div class="otp-entry">
-                  <input id="signup-otp" type="text" inputmode="numeric" maxlength="5" autocomplete="one-time-code" aria-describedby="signup-otp-help signup-verify-msg">
-                  <button class="btn" id="verify-email-btn" type="button">Verify email</button>
+                  <input id="signup-otp" type="text" inputmode="numeric" maxlength="5" autocomplete="one-time-code" aria-describedby="signup-otp-help signup-verify-msg" disabled>
+                  <button class="btn" id="verify-email-btn" type="button" disabled>Verify email</button>
                 </div>
-                <p class="small" id="signup-otp-help">Enter the five-digit code to verify your email address.</p>
+                <p class="small" id="signup-otp-help">Request a code first, then enter the five-digit code here.</p>
                 <p class="msg" id="signup-verify-msg" role="status" aria-live="polite" hidden></p>
               </div>
               <div class="field wide">

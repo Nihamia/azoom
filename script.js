@@ -847,18 +847,56 @@ const signupForm = document.getElementById("signup-form");
 if (signupForm) {
   const signupEmail = document.getElementById("signup-email"),
   signupOtp = document.getElementById("signup-otp"),
-  verifyEmailButton = document.getElementById("verify-email-btn"),
+  sendVerificationButton = document.getElementById("send-verification-btn"),
+  verifyEmailButton = document.getElementById("send-verification-btn"),
+  sendMessage = document.getElementById("signup-send-msg"),
   verificationMessage = document.getElementById("signup-verify-msg");
-  let verifiedEmail = "";
+  let verifiedEmail = "",
+  codeRequestedEmail = "";
   if (signupOtp) {
     signupOtp.addEventListener("input", function() {
       signupOtp.value = signupOtp.value.replace(/[^0-9]/g, "").slice(0, 5)
     })
   }
   if (signupEmail) {
+    const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+\.[A-Za-z]{2,}$/;
     signupEmail.addEventListener("input", function() {
-      if (verifiedEmail && signupEmail.value.trim().toLowerCase() !== verifiedEmail) {
+      
+      const currentEmail = signupEmail.value.trim().toLowerCase();
+
+      if (currentEmail && !emailPattern.test(currentEmail)) {
+      if (verifyEmailButton) verifyEmailButton.disabled = true;
+
+      if (sendMessage) {
+        sendMessage.textContent = "Please enter a valid email address.";
+        sendMessage.hidden = false;
+        sendMessage.className = "msg error";
+      }
+
+      if (verificationMessage) {
+        verificationMessage.textContent = "";
+        verificationMessage.hidden = true;
+        verificationMessage.className = "msg";
+      }
+
+      return;
+
+  }
+
+
+      if ((verifiedEmail && currentEmail !== verifiedEmail) || (codeRequestedEmail && currentEmail !== codeRequestedEmail)) {
         verifiedEmail = "";
+        codeRequestedEmail = "";
+        if (signupOtp) {
+          signupOtp.value = "";
+          signupOtp.disabled = true
+        }
+        if (verifyEmailButton) verifyEmailButton.disabled = true;
+        if (sendMessage) {
+          sendMessage.textContent = "";
+          sendMessage.hidden = true;
+          sendMessage.className = "msg"
+        }
         if (verificationMessage) {
           verificationMessage.textContent = "";
           verificationMessage.hidden = true;
@@ -867,10 +905,44 @@ if (signupForm) {
       }
     })
   }
+  if (sendVerificationButton) {
+    sendVerificationButton.addEventListener("click", function() {
+      if (!signupEmail.checkValidity()) {
+        signupEmail.reportValidity();
+        return
+      }
+      codeRequestedEmail = signupEmail.value.trim().toLowerCase();
+      verifiedEmail = "";
+      if (signupOtp) {
+        signupOtp.value = "";
+        signupOtp.disabled = false
+      }
+      if (verifyEmailButton) verifyEmailButton.disabled = false;
+      if (verificationMessage) {
+        verificationMessage.textContent = "";
+        verificationMessage.hidden = true;
+        verificationMessage.className = "msg"
+      }
+      if (sendMessage) {
+        sendMessage.textContent = "OTP sent to " + codeRequestedEmail + ". Enter 12345 below to verify your email.";
+        sendMessage.className = "msg success";
+        sendMessage.hidden = false
+      }
+      if (signupOtp) signupOtp.focus()
+    })
+  }
   if (verifyEmailButton) {
     verifyEmailButton.addEventListener("click", function() {
       if (!signupEmail.checkValidity()) {
         signupEmail.reportValidity();
+        return
+      }
+      if (codeRequestedEmail !== signupEmail.value.trim().toLowerCase()) {
+        if (verificationMessage) {
+          verificationMessage.textContent = "Send a verification code first.";
+          verificationMessage.className = "msg";
+          verificationMessage.hidden = false
+        }
         return
       }
       if (!signupOtp || signupOtp.value !== "12345") {
@@ -883,7 +955,7 @@ if (signupForm) {
       }
       verifiedEmail = signupEmail.value.trim().toLowerCase();
       if (verificationMessage) {
-        verificationMessage.textContent = "Email sent successfully. Your email address is now verified.";
+        verificationMessage.textContent = "Your email address is verified.";
         verificationMessage.className = "msg success";
         verificationMessage.hidden = false
       }
@@ -1099,6 +1171,12 @@ const home = document.getElementById("home-form");
 if (home) {
   const homeStart = document.getElementById("home-start-date"),
   homeEnd = document.getElementById("home-end-date");
+  
+  const localToday = new Date();
+  localToday.setMinutes(localToday.getMinutes() - localToday.getTimezoneOffset());
+  const todayDate = localToday.toISOString().slice(0, 10);
+  homeStart.min = todayDate;
+
   homeStart.addEventListener("change", function() {
     homeEnd.min = homeStart.value; if (homeEnd.value && homeEnd.value < homeStart.value) {
       homeEnd.value = ""

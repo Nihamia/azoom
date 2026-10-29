@@ -1188,7 +1188,6 @@ p {
 }
 
 .btn:disabled:hover {
-  background: white;
   transform: none;
 }
 
@@ -1200,6 +1199,8 @@ p {
 .otp-entry input{box-sizing:border-box;flex:1 1 auto;min-width:0;min-height:44px;padding:10px 12px;border:1px solid #d8dce2;border-radius:7px;color:#102548;background:#fff;font:inherit}
 .otp-entry input:focus{outline:2px solid #ff8e7e}
 .otp-entry .btn{flex:0 0 auto;white-space:nowrap}
+.field #send-verification-btn{align-self:flex-start}
+.otp-entry .btn:disabled{opacity:.55;cursor:not-allowed}
 @media(max-width:480px){.otp-entry{align-items:stretch;flex-direction:column}.otp-entry .btn{align-self:flex-start}}
 
 .inspection-dialog {
