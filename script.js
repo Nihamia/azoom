@@ -316,6 +316,60 @@ function getCurrentAccount() {
   }
   return null
 }
+/* Red dot on the Account button when a booking status changes */
+const noticeKey = "azoomNoticeSeen";
+function bookingNoticeState(booking) {
+  if (booking.billReceived || booking.paid) return "bill-received";
+  if (booking.billIssued) return booking.appealResolved ? "bill-revised" : "bill-issued";
+  return bookingStatus(booking)
+}
+function readNoticeSeen() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(noticeKey) || "{}");
+    return saved && typeof saved === "object" && !Array.isArray(saved) ? saved : {}
+  }
+  catch (err) {
+    return {}
+  }
+}
+function hasUnseenNotice(user) {
+  if (!user) return false;
+  const seen = readNoticeSeen()[user.email] || {}, bookings = readBookings();
+  for (let i = 0; i < bookings.length; i++) {
+    if (bookings[i].email !== user.email) continue;
+    if ((seen[bookings[i].reference] || "reserved") !== bookingNoticeState(bookings[i])) return true
+  }
+  return false
+}
+function markNoticesSeen(user) {
+  if (!user) return;
+  try {
+    const all = readNoticeSeen(), bookings = readBookings(), mine = {};
+    for (let i = 0; i < bookings.length; i++) {
+      if (bookings[i].email === user.email) mine[bookings[i].reference] = bookingNoticeState(bookings[i])
+    }
+    all[user.email] = mine;
+    localStorage.setItem(noticeKey, JSON.stringify(all))
+  }
+  catch (err) {
+  }
+}
+function refreshNoticeDot() {
+  let show = false;
+  try {
+    show = localStorage.getItem(staffLoginKey) !== "yes" && hasUnseenNotice(getCurrentAccount())
+  }
+  catch (err) {
+  }
+  const targets = document.querySelectorAll(".profile-toggle, .nav-toggle, #account-link, #profile-account-link");
+  for (let i = 0; i < targets.length; i++) targets[i].classList.toggle("has-notice", show);
+  const toggle = document.querySelector(".profile-toggle");
+  if (toggle) toggle.setAttribute("aria-label", show ? "Account menu, you have new booking updates" : "Account menu")
+}
+window.addEventListener("storage", function(e) {
+  if (!e.key || e.key === bookingsKey || e.key === noticeKey || e.key === loginKey) refreshNoticeDot()
+});
+
 function updateAccountLink() {
   let staffSignedIn = false;
   try {
@@ -353,6 +407,7 @@ function updateAccountLink() {
       window.location.href = "index.html"
     }
   }
+  refreshNoticeDot()
 }
 function goHomeWithWelcome(message) {
   try {
@@ -407,6 +462,7 @@ function showAccount(user) {
   show("account-reward-points", points);
   show("account-reward-message", pointsMessage);
   showAccountReservation(user);
+  markNoticesSeen(user); 
   updateAccountLink()
 }
 function addBillLine(parent, label, value) {
@@ -1310,7 +1366,7 @@ function getStaffAccount() {
 function clearOldAzoomData() {
   for (let i = localStorage.length - 1; i >= 0; i--) {
     const key = localStorage.key(i);
-    if (key && key.indexOf("azoom") === 0 && key !== staffKey) {
+    if (key && key.indexOf("azoom") === 0 && key !== staffKey && key !== accountsKey && key != loginKey) {
       localStorage.removeItem(key)
     }
   }
@@ -1319,11 +1375,6 @@ function signInStaff(username, password) {
   const staffAccount = getStaffAccount();
   if (username !== staffAccount.username || password !== staffAccount.password) {
     return false
-  }
-  if (!staffAccount.dataReset) {
-    clearOldAzoomData();
-    staffAccount.dataReset = true;
-    localStorage.setItem(staffKey, JSON.stringify(staffAccount))
   }
   localStorage.setItem(staffLoginKey, "yes");
   return true
@@ -1412,7 +1463,7 @@ function renderAdminDashboard() {
     badge.textContent = state === "rented" ? "Rented out" : state === "reserved" ? "Reserved" : state === "returned" ? "Returned" : state === "repairing" ? "Under repair" : "Available";
     statusCell.appendChild(badge);
     if (booking) {
-      if (booking.billReceived || booking.paid) {
+      if (booking.billReceived || booking.paid || booking.paymentSubmitted) {
         customerCell.textContent = "—";
         dateCell.textContent = "—"
       }
@@ -1486,14 +1537,16 @@ function renderAdminDashboard() {
       const row = document.createElement("tr"),
       carCell = document.createElement("td"),
       customerCell = document.createElement("td"),
+      receiptCell = document.createElement("td"),
       datesCell = document.createElement("td"),
       amountCell = document.createElement("td"),
       car = vehicle[booking.carId] || {};
+      receiptCell.textContent = booking.reference || "-";
       carCell.textContent = (booking.carName || car.name || "Car") + (car.cat ? " (" + car.cat + ")" : "");
       customerCell.textContent = booking.email || "-";
       datesCell.textContent = (booking.pickupDate || "-") + " to " + (booking.returnDate || "-");
       amountCell.textContent = money(booking.paidAmount !== undefined && booking.paidAmount !== null ? booking.paidAmount : bookingTotal(booking));
-      row.appendChild(carCell); row.appendChild(customerCell); row.appendChild(datesCell); row.appendChild(amountCell);
+      row.appendChild(receiptCell); row.appendChild(carCell); row.appendChild(customerCell); row.appendChild(datesCell); row.appendChild(amountCell);
       paidHistoryRows.appendChild(row);
       paidHistoryCount++
     }

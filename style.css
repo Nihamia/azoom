@@ -1674,3 +1674,8 @@ p {
 }
 
 .field input:disabled { background: #f1f2f4; color: #7b8797; cursor: not-allowed; }
+
+/* Red notification dot on the Account button */
+.profile-toggle,.nav-toggle,.mobile-account-link,.profile-menu-link{position:relative}
+.has-notice::after{position:absolute;top:-3px;right:-3px;width:13px;height:13px;border:2px solid #fff;border-radius:50%;background:#e03131;content:"";pointer-events:none}
+.profile-menu-link.has-notice::after{top:50%;right:10px;transform:translateY(-50%)}
