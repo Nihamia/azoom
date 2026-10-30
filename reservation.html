@@ -128,14 +128,19 @@
               <div class="field"><label for="customer-email">Email</label><input id="customer-email" type="email" required readonly></div>
               <div class="field">
                 <label for="customer-phone">Singapore phone number</label>
-                <input id="customer-phone" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="8" placeholder="91234567" aria-describedby="phone-help phone-error" required>
+                <input id="customer-phone" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="8" placeholder="91234567" aria-describedby="phone-help phone-error">
                 <p class="small" id="phone-help">Enter 8 digits starting with 3, 6, 8 or 9.</p>
+                <div class="terms-consent wide">
+                  <label for="no-singapore-phone"><input id="no-singapore-phone" type="checkbox"> No Singapore Phone</label>
+                </div>
                 <p class="msg" id="phone-error" role="status" aria-live="polite" hidden></p>
               </div>
               <div class="field wide">
-                <label for="customer-license">Singapore driving licence number</label>
-                <input id="customer-license" type="text" maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="S1234567A" aria-describedby="license-help license-error" required>
-                <p class="small" id="license-help">Enter 9 characters: S, T, F, G or M, followed by 7 digits and a final letter. Format is checked only.</p>
+                <label for="customer-NRICpassport">NRIC/Passport</label>
+                <input id="customer-NRICpassport" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="S0123453G or MF123403I" required>
+                <label for="customer-license">Driving licence number</label>
+                <input id="customer-license" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="S1234567A" aria-describedby="license-help license-error" required>
+                <p class="text-link" id="license-help"><b>Do bring your NRIC/Passport and driving license on the collection day for verification. Failure to do so will result cancellation of reservation.</b></p>
                 <p class="msg" id="license-error" role="status" aria-live="polite" hidden></p>
               </div>
             </div>
@@ -178,6 +183,7 @@
                 <div><dt>Rental dates</dt><dd id="review-dates"></dd></div>
                 <div><dt>Driving licence</dt><dd id="review-license"></dd></div>
                 <div><dt>Additional request</dt><dd id="review-request"></dd></div>
+                <div><dt>Card number</dt><dd id="review-card"></dd></div>
               </dl>
               <p class="reservation-review-total"><span>Estimated rental</span><b id="review-total"></b></p>
               <p class="small">Your card details are checked for format only; this page does not process payment.</p>

@@ -1672,3 +1672,5 @@ p {
   .bill-line,.bill-item-line,.account-bill-total{gap:12px}
   .bill-line-value{flex-basis:48%}
 }
+
+.field input:disabled { background: #f1f2f4; color: #7b8797; cursor: not-allowed; }

@@ -1094,13 +1094,24 @@ function pickupLocation(branch) {
   return "Causeway Point Car Park A, Level B1"
 }
 function validCardNumber(value) {
-  return /^[0-9]{16}$/.test(value)
+  return /^[0-9]{13,19}$/.test(value)
 }
 function validSingaporePhone(value) {
   return /^[3689][0-9]{7}$/.test(String(value || "").trim())
 }
 function validSingaporeDrivingLicense(value) {
   return /^[STFGM][0-9]{7}[A-Z]$/.test(String(value || "").trim().toUpperCase())
+}
+function maskDrivingLicense(value) {
+  const license = String(value || "").trim().toUpperCase();
+  if (!license) return "-";
+  if (license.length <= 2) return license;
+  return license.charAt(0) + "•".repeat(license.length - 2) + license.charAt(license.length - 1)
+}
+function maskCardNumber(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  if (digits.length < 4) return "-";
+  return "*".repeat(digits.length - 4) + digits.slice(-4)
 }
 function maskDrivingLicense(value) {
   const license = String(value || "").trim().toUpperCase();
@@ -1329,6 +1340,39 @@ function addAdminActionButton(cell, carId, action, label, disabled, reference) {
   button.disabled = disabled;
   cell.appendChild(button)
 }
+
+function renderUserInventory() {
+  const rows = document.getElementById("admin-user-rows"),
+  empty = document.getElementById("admin-user-empty"),
+  table = document.getElementById("admin-user-table");
+  if (!rows) return;
+  while (rows.firstChild) rows.removeChild(rows.firstChild);
+  const bookings = readBookings();
+  for (let i = bookings.length - 1; i >= 0; i--) {
+    const b = bookings[i], row = document.createElement("tr"),
+    values = [
+      b.customerName || "-",
+      b.email || "-",
+      b.phone || "-",
+      b.nric || "-",
+      b.drivingLicense || "-",
+      b.reference || "-",
+      b.carName || "-",
+      (b.pickupDate || "-") + " to " + (b.returnDate || "-")
+    ];
+    for (let j = 0; j < values.length; j++) {
+      const cell = document.createElement("td");
+      cell.textContent = values[j];
+      row.appendChild(cell)
+    }
+    rows.appendChild(row)
+  }
+  if (empty) empty.hidden = bookings.length > 0;
+  if (table) table.hidden = bookings.length === 0
+}
+
+
+
 function renderAdminDashboard() {
   if (!adminRows) return;
   while (adminRows.firstChild) adminRows.removeChild(adminRows.firstChild);
@@ -1464,6 +1508,7 @@ function renderAdminDashboard() {
   show("admin-paid", money(paidTotal));
   show("admin-outstanding", money(outstandingTotal));
   show("admin-cost-note", "Total due and paid amounts include any appeal deductions. Customer payment submissions remain pending until staff confirms receipt.")
+  renderUserInventory()
 }
 const adminActionModal = document.getElementById("admin-action-modal"),
 adminActionTitle = document.getElementById("admin-action-title"),
@@ -1480,6 +1525,11 @@ inspectionBillDetails = document.getElementById("inspection-bill-details"),
 inspectionBillTotal = document.getElementById("inspection-bill-total"),
 inspectionProceed = document.getElementById("inspection-proceed"),
 inspectionBack = document.getElementById("inspection-back");
+
+const adminReceiptField = document.getElementById("admin-receipt-field"),
+adminReceiptInput = document.getElementById("admin-receipt-input"),
+adminReceiptError = document.getElementById("admin-receipt-error");
+
 const appealModal = document.getElementById("appeal-modal"),
 appealForm = document.getElementById("appeal-form"),
 appealInfo = document.getElementById("appeal-booking-info"),
@@ -1773,6 +1823,7 @@ if (inspectionProceed && inspectionBillPreview) {
         pendingInspectionReference = "";
         pendingInspection = null;
         renderAdminDashboard();
+        
         accountMessage("admin-action-msg", "Final bill issued. Use Make available when the car is ready, and Received bill to record payment.");
         const message = document.getElementById("admin-action-msg");
         if (message) message.className = "msg success"
@@ -1865,8 +1916,12 @@ if (adminRows && adminActionModal) {
     adminActionTitle.textContent = action === "rent" ? "Mark this car as rented out?" : action === "return" ? "Mark this car as returned?" : action === "cancel" ? "Cancel this reservation?" : action === "make-available" ? "Make this car available?" : action === "repair" ? "Mark this car under repair?" : "Confirm the bill was received?";
     adminActionCopy.textContent = action === "rent" ? "Confirm that the customer has collected the car. Its status will change from Reserved to Rented out." : action === "return" ? "Confirm that the customer has returned this car. An inspection action will then appear." : action === "cancel" ? "This will remove the reservation and make the car available again for customers." : action === "make-available" ? "The car will become available for new customer bookings." : action === "repair" ? "The car will remain unavailable to customers while staff completes the repair. Use Make available when it is ready." : "This records the full bill as received and adds it to the paid total in the cost report.";
     adminActionConfirm.textContent = action === "rent" ? "Yes, mark rented out" : action === "return" ? "Yes, mark returned" : action === "cancel" ? "Yes, cancel reservation" : action === "make-available" ? "Yes, make available" : action === "repair" ? "Yes, mark under repair" : "Yes, received bill";
+    const needsReceipt = action === "rent";
+    if (adminReceiptField) adminReceiptField.hidden = !needsReceipt;
+    if (adminReceiptError) { adminReceiptError.hidden = true; adminReceiptError.textContent = "" }
+    if (adminReceiptInput) adminReceiptInput.value = "";
     adminActionModal.hidden = false;
-    adminActionConfirm.focus()
+    (needsReceipt && adminReceiptInput ? adminReceiptInput : adminActionConfirm).focus()
   })
 }
 if (adminActionCancel && adminActionModal) {
@@ -1879,6 +1934,17 @@ if (adminActionCancel && adminActionModal) {
 if (adminActionConfirm && adminActionModal) {
   adminActionConfirm.addEventListener("click", function() {
     if (!pendingAdminAction) { adminActionModal.hidden = true; return }
+    if (pendingAdminAction.action === "rent") {
+      const typed = adminReceiptInput ? adminReceiptInput.value.trim().toUpperCase() : "";
+      if (typed !== String(pendingAdminAction.reference).toUpperCase()) {
+        if (adminReceiptError) {
+          adminReceiptError.textContent = "Receipt number does not match this reservation. Please check and try again.";
+          adminReceiptError.hidden = false
+        }
+        if (adminReceiptInput) adminReceiptInput.focus();
+        return
+      }
+    }
     try {
       const bookings = readBookings(), action = pendingAdminAction.action, reference = pendingAdminAction.reference;
       let index = -1;
@@ -2014,6 +2080,14 @@ if (summary && window.location.search.indexOf("?search=1") === 0) {
     summary.hidden = false
   }
 }
+
+
+
+
+
+
+
+
 const form = document.getElementById("reserve-form");
 if (form) {
   const customer = getCurrentAccount(),
@@ -2033,6 +2107,26 @@ if (form) {
   confirmModal = document.getElementById("confirm-modal"),
   confirmYes = document.getElementById("confirm-yes"),
   confirmLater = document.getElementById("confirm-later");
+  const noSingaporePhone = document.getElementById("no-singapore-phone");
+
+  if (noSingaporePhone && phoneNumber) {
+    noSingaporePhone.addEventListener("change", function () {
+      if (noSingaporePhone.checked) {
+        // Clear and disable the Singapore phone field
+        phoneNumber.value = "";
+        // phoneNumber.disabled = true;
+
+        if (phoneError) {
+          phoneError.textContent = "";
+          phoneError.hidden = true;
+        }
+      } else {
+        // Re-enable the field if the user unticks it
+        phoneNumber.disabled = false;
+      }
+    });
+  }
+
   if (cardNumber) {
     cardNumber.addEventListener('input', function() {
       cardNumber.value = cardNumber.value.replace(/[^0-9]/g, '').slice(0, 16)
@@ -2043,15 +2137,10 @@ if (form) {
       cardSecurity.value = cardSecurity.value.replace(/[^0-9]/g, "").slice(0, 3)
     })
   }
-  if (phoneNumber) {
-    phoneNumber.addEventListener("input", function() {
-      phoneNumber.value = phoneNumber.value.replace(/[^0-9]/g, "").slice(0, 8);
-      if (phoneError) phoneError.hidden = true
-    })
-  }
+
   if (licenseNumber) {
     licenseNumber.addEventListener("input", function() {
-      licenseNumber.value = licenseNumber.value.toUpperCase().replace(/\s/g, "").slice(0, 9);
+      licenseNumber.value = licenseNumber.value.toUpperCase();
       if (licenseError) licenseError.hidden = true
     })
   }
@@ -2311,7 +2400,10 @@ if (form) {
       window.location.href = "account.html?next=" + encodeURIComponent("reservation.html" + window.location.search);
       return
     }
-    if (!validSingaporePhone(phoneNumber.value)) {
+
+// NEW
+    const noPhone = !!(noSingaporePhone && noSingaporePhone.checked);
+    if (!noPhone && !validSingaporePhone(phoneNumber.value)) {
       if (phoneError) {
         phoneError.textContent = "Enter an 8-digit Singapore phone number starting with 3, 6, 8 or 9.";
         phoneError.hidden = false
@@ -2320,6 +2412,8 @@ if (form) {
       return
     }
     if (phoneError) phoneError.hidden = true;
+
+
     if (!start.value || start.value < todayDate) {
       alert("Choose a pickup date from today onward.");
       start.focus();
@@ -2330,9 +2424,10 @@ if (form) {
       end.focus();
       return
     }
-    if (!validSingaporeDrivingLicense(licenseNumber.value)) {
+
+    if (!licenseNumber.value.trim()) {
       if (licenseError) {
-        licenseError.textContent = "Enter 9 characters: S, T, F, G or M, followed by 7 digits and a final letter.";
+        licenseError.textContent = "Enter your driving licence number.";
         licenseError.hidden = false
       }
       licenseNumber.focus();
@@ -2379,6 +2474,9 @@ if (form) {
       email: document.getElementById("customer-email").value,
       phone: document.getElementById("customer-phone").value,
       drivingLicense: licenseNumber.value.trim().toUpperCase(),
+      cardLast4: cardNumber.value.slice(-4),
+      nric: document.getElementById("customer-NRICpassport").value.trim().toUpperCase(),
+      phone: noPhone ? "No Singapore phone number" : phoneNumber.value,
       additionalRequest: additionalRequest ? additionalRequest.value : "",
       additionalRequestLabel: additionalRequestLabel,
       carId: select.value,
@@ -2402,9 +2500,10 @@ if (form) {
     show("review-branch", booking.pickupBranch);
     show("review-location", booking.pickupLocation);
     show("review-dates", booking.pickupDate + " to " + booking.returnDate + " · " + days + (days === 1 ? " day" : " days"));
-    show("review-license", maskDrivingLicense(booking.drivingLicense));
+    show("review-license", (booking.drivingLicense));
     show("review-request", booking.additionalRequestLabel);
-    show("review-total", money(booking.estimatedTotal));
+    show("review-total", (money(booking.estimatedTotal)));
+    show("review-card", maskCardNumber(cardNumber.value));
     if (confirmModal) {
       confirmModal.hidden = false
     }
@@ -2424,7 +2523,7 @@ if (empty && box) {
     show("confirm-name", booking.customerName);
     show("confirm-email", booking.email);
     show("confirm-phone", booking.phone);
-    show("confirm-license", maskDrivingLicense(booking.drivingLicense));
+    show("confirm-license", (booking.drivingLicense));
     show("confirm-request", booking.additionalRequestLabel || "None");
     show("confirm-email-status", "Email confirmation sent to " + booking.email);
     show("confirm-car", booking.carName);
@@ -2436,12 +2535,13 @@ if (empty && box) {
     show("confirm-days", booking.rentalDays + (booking.rentalDays === 1 ? " day" : " days"));
     show("confirm-pickup", booking.pickupDate);
     show("confirm-return", booking.returnDate);
+    show("confirm-card", booking.cardLast4 ? "************" + booking.cardLast4 : "-");
     show("confirm-rate", money(booking.dailyRate) + " per day");
     show("confirm-total", money(booking.estimatedTotal));
     const rewardRow = document.getElementById("confirm-rewards-row");
     if (rewardRow) rewardRow.hidden = !(Number(booking.rentalDiscountAmount || 0) > 0);
     show("confirm-rewards", Number(booking.rentalDiscountAmount || 0) > 0 ? "10% off · −" + money(booking.rentalDiscountAmount) + " · 1,000 points used" : "");
-    const receipt = "AZoom Car Rental - Reservation Confirmation\nReceipt number: " + booking.reference + "\nCustomer: " + booking.customerName + "\nEmail: " + booking.email + "\nPhone: " + booking.phone + "\nDriving licence: " + maskDrivingLicense(booking.drivingLicense) + "\nAdditional request: " + (booking.additionalRequestLabel || "None") + "\nVehicle: " + booking.carName + " (" + booking.category + ")\nPickup: " + booking.pickupBranch + "\nPickup location: " + (booking.pickupLocation || pickupLocation(booking.pickupBranch)) + "\nBarcode value: " + booking.reference + "\nPickup date: " + booking.pickupDate + "\nReturn date: " + booking.returnDate + "\nDays: " + booking.rentalDays + "\nRate: " + money(booking.dailyRate) + "\nRewards discount: " + money(booking.rentalDiscountAmount || 0) + "\nEstimated amount: " + money(booking.estimatedTotal),
+    const receipt = "AZoom Car Rental - Reservation Confirmation\nReceipt number: " + booking.reference + "\nCustomer: " + booking.customerName + "\nEmail: " + booking.email + "\nPhone: " + booking.phone + "\nDriving licence: " + (booking.drivingLicense) + "\nAdditional request: " + (booking.additionalRequestLabel || "None") + "\nVehicle: " + booking.carName + " (" + booking.category + ")\nPickup: " + booking.pickupBranch + "\nPickup location: " + (booking.pickupLocation || pickupLocation(booking.pickupBranch)) + "\nBarcode value: " + booking.reference + "\nPickup date: " + booking.pickupDate + "\nReturn date: " + booking.returnDate + "\nDays: " + booking.rentalDays + "\nRate: " + money(booking.dailyRate) + "\nRewards discount: " + money(booking.rentalDiscountAmount || 0) + "\nEstimated amount: " + money(booking.estimatedTotal),
     blob = new Blob([receipt], { type: "text/plain" }),
     link = document.getElementById("download-link");
     if (link) {
@@ -2990,3 +3090,5 @@ for (let i = 0; i < menuLinks.length; i++) {
     }
   });
 })();
+
+

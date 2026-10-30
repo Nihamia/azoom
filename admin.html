@@ -92,11 +92,39 @@
         <p class="msg success" id="admin-action-msg" role="status" aria-live="polite" hidden></p>
       </div>
     </section>
+    <section class="section" id="admin-users">
+      <div class="wrap">
+        <div class="title">
+          <p class="label">CUSTOMER RECORDS</p>
+          <h2>User Inventory</h2>
+          <p>Details submitted by customers when they reserve a car.</p>
+        </div>
+        <p class="small" id="admin-user-empty" style="color:#40536e">No customer details saved yet.</p>
+        <div class="table-wrap" id="admin-user-table" hidden>
+          <table class="table admin-table">
+            <thead>
+              <tr>
+                <th>Name</th><th>Email</th><th>Phone</th><th>NRIC/Passport</th>
+                <th>Driving licence</th><th>Receipt</th><th>Car</th><th>Rental dates</th>
+              </tr>
+            </thead>
+            <tbody id="admin-user-rows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+
     <div class="confirm-modal" id="admin-action-modal" hidden>
       <div class="confirm-box" role="dialog" aria-modal="true" aria-labelledby="admin-action-title">
         <p class="label" id="admin-action-label">STAFF ACTION</p>
         <h2 id="admin-action-title">Confirm fleet update</h2>
         <p id="admin-action-copy"></p>
+        <div class="field" id="admin-receipt-field" hidden>
+          <label for="admin-receipt-input">Receipt number</label>
+          <input id="admin-receipt-input" type="text" autocomplete="off" placeholder="AZ-1234567890123">
+          </div>
+          <p class="msg" id="admin-receipt-error" role="alert" hidden></p>
         <div class="confirm-actions">
           <button class="btn" id="admin-action-confirm" type="button">Confirm</button>
           <button class="btn alt" id="admin-action-cancel" type="button">Go back</button>
