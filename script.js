@@ -848,7 +848,7 @@ if (signupForm) {
   const signupEmail = document.getElementById("signup-email"),
   signupOtp = document.getElementById("signup-otp"),
   sendVerificationButton = document.getElementById("send-verification-btn"),
-  verifyEmailButton = document.getElementById("send-verification-btn"),
+  verifyEmailButton = document.getElementById("verify-email-btn"),
   sendMessage = document.getElementById("signup-send-msg"),
   verificationMessage = document.getElementById("signup-verify-msg");
   let verifiedEmail = "",
@@ -859,7 +859,7 @@ if (signupForm) {
     })
   }
   if (signupEmail) {
-    const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+\.[A-Za-z]{2,}$/;
+    const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+\.[A-Za-z]{2,}$/;
     signupEmail.addEventListener("input", function() {
       
       const currentEmail = signupEmail.value.trim().toLowerCase();
@@ -880,8 +880,14 @@ if (signupForm) {
       }
 
       return;
-
   }
+      if (sendVerificationButton) sendVerificationButton.disabled = !currentEmail;
+
+      if (sendMessage) {
+        sendMessage.textContent = "";
+        sendMessage.hidden = true;
+        sendMessage.className = "msg";
+      }
 
 
       if ((verifiedEmail && currentEmail !== verifiedEmail) || (codeRequestedEmail && currentEmail !== codeRequestedEmail)) {
@@ -924,7 +930,7 @@ if (signupForm) {
         verificationMessage.className = "msg"
       }
       if (sendMessage) {
-        sendMessage.textContent = "OTP sent to " + codeRequestedEmail + ". Enter 12345 below to verify your email.";
+        sendMessage.textContent = "OTP sent to " + codeRequestedEmail + ". Enter code below to verify your email.";
         sendMessage.className = "msg success";
         sendMessage.hidden = false
       }
@@ -961,6 +967,61 @@ if (signupForm) {
       }
     })
   }
+
+  const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/;
+
+  const signupPassword = document.getElementById("signup-password"),
+    passwordMessage = document.getElementById("signup-password-msg"),
+    submitButton = document.getElementById("signup-submit-btn");
+
+  function validatePassword(password) {
+    const errors = [];
+    if (password.length < 8) errors.push("At least 8 characters");
+    if (!/[a-z]/.test(password)) errors.push("At least 1 lowercase letter");
+    if (!/[A-Z]/.test(password)) errors.push("At least 1 uppercase letter");
+    if (!/[0-9]/.test(password)) errors.push("At least 1 number");
+    if (!/[^A-Za-z0-9]/.test(password)) errors.push("At least 1 special character");
+    return errors;
+  }
+
+  function updateSubmitState() {
+    const emailOk = emailPattern.test(signupEmail.value.trim().toLowerCase());
+    const passwordOk = validatePassword(signupPassword.value).length === 0;
+    submitButton.disabled = !(emailOk && passwordOk);
+  }
+
+  // 1. Password message listener (only handles the message)
+  signupPassword.addEventListener("input", function () {
+    const password = signupPassword.value;
+
+    if (!password) {
+      passwordMessage.textContent = "";
+      passwordMessage.hidden = true;
+      passwordMessage.className = "msg";
+      return;
+    }
+
+    const errors = validatePassword(password);
+
+    if (errors.length > 0) {
+      passwordMessage.innerHTML = errors.map(e => "• " + e).join("<br>");
+      passwordMessage.hidden = false;
+      passwordMessage.className = "msg error";
+    } else {
+      passwordMessage.textContent = "Strong password ✓";
+      passwordMessage.hidden = false;
+      passwordMessage.className = "msg success";
+    }
+  });
+
+  // 2. Button state listeners (one per field)
+  signupEmail.addEventListener("input", updateSubmitState);
+  signupPassword.addEventListener("input", updateSubmitState);
+
+
+
+
+
   const current = getCurrentAccount();
   if (current && !goAccountNext()) {
     window.location.replace("account.html")
@@ -972,6 +1033,8 @@ if (signupForm) {
     email = document.getElementById("signup-email").value.trim().toLowerCase(),
     password = document.getElementById("signup-password").value,
     accounts = readAccounts();
+
+
     if (verifiedEmail !== email) {
       accountMessage("signup-msg", "Please verify your email address before creating your account.");
       if (signupOtp) signupOtp.focus();
@@ -2717,6 +2780,213 @@ for (let i = 0; i < menuLinks.length; i++) {
     }
     catch (err) {
       window.location.href = destination.href
+    }
+  });
+})();
+
+
+/* Forgot password page (paste at the very END of script.js) */
+(function () {
+  const forgotForm = document.getElementById("forgot-form");
+  if (!forgotForm) return;
+
+  const emailInput = document.getElementById("forgot-email"),
+    sendBtn = document.getElementById("forgot-send-btn"),
+    otpInput = document.getElementById("forgot-otp"),
+    verifyBtn = document.getElementById("forgot-verify-btn"),
+    sendMsg = document.getElementById("forgot-send-msg"),
+    verifyMsg = document.getElementById("forgot-verify-msg"),
+    resetStep = document.getElementById("forgot-reset-step"),
+    newPassword = document.getElementById("forgot-new-password"),
+    newPasswordMsg = document.getElementById("forgot-new-password-msg"),
+    confirmPassword = document.getElementById("forgot-confirm-password"),
+    confirmMsg = document.getElementById("forgot-confirm-msg"),
+    changeBtn = document.getElementById("forgot-change-btn"),
+    formMsg = document.getElementById("forgot-msg");
+
+  const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/;
+  let codeRequestedEmail = "",
+    verifiedEmail = "";
+
+  function setMessage(el, text, type) {
+    if (!el) return;
+    if (!text) {
+      el.textContent = "";
+      el.hidden = true;
+      el.className = "msg";
+      return;
+    }
+    el.textContent = text;
+    el.hidden = false;
+    el.className = type ? "msg " + type : "msg";
+  }
+
+  function validatePassword(password) {
+    const errors = [];
+    if (password.length < 8) errors.push("At least 8 characters");
+    if (!/[a-z]/.test(password)) errors.push("At least 1 lowercase letter");
+    if (!/[A-Z]/.test(password)) errors.push("At least 1 uppercase letter");
+    if (!/[0-9]/.test(password)) errors.push("At least 1 number");
+    if (!/[^A-Za-z0-9]/.test(password)) errors.push("At least 1 special character");
+    return errors;
+  }
+
+  function findAccountIndex(email) {
+    const accounts = readAccounts();
+    for (let i = 0; i < accounts.length; i++) {
+      if (String(accounts[i].email || "").toLowerCase() === email) return i;
+    }
+    return -1;
+  }
+
+  /* ---------- Step 1: email + code ---------- */
+  otpInput.addEventListener("input", function () {
+    otpInput.value = otpInput.value.replace(/[^0-9]/g, "").slice(0, 5);
+  });
+
+  emailInput.addEventListener("input", function () {
+    const email = emailInput.value.trim().toLowerCase();
+
+    if (email && !emailPattern.test(email)) {
+      sendBtn.disabled = true;
+      setMessage(sendMsg, "Please enter a valid email address.", "error");
+    } else {
+      sendBtn.disabled = !email;
+      setMessage(sendMsg, "");
+    }
+
+    // Email changed after a code was sent: reset the code step
+    if (codeRequestedEmail && email !== codeRequestedEmail) {
+      codeRequestedEmail = "";
+      otpInput.value = "";
+      otpInput.disabled = true;
+      verifyBtn.disabled = true;
+      setMessage(verifyMsg, "");
+    }
+  });
+
+  sendBtn.addEventListener("click", function () {
+    const email = emailInput.value.trim().toLowerCase();
+
+    if (!emailPattern.test(email)) {
+      setMessage(sendMsg, "Please enter a valid email address.", "error");
+      return;
+    }
+    if (findAccountIndex(email) < 0) {
+      setMessage(sendMsg, "No account was found with this email address.", "error");
+      return;
+    }
+
+    codeRequestedEmail = email;
+    otpInput.value = "";
+    otpInput.disabled = false;
+    verifyBtn.disabled = false;
+    setMessage(verifyMsg, "");
+    setMessage(sendMsg, "OTP sent to " + email + ". Enter the code below to verify your email.", "success");
+    otpInput.focus();
+  });
+
+  verifyBtn.addEventListener("click", function () {
+    const email = emailInput.value.trim().toLowerCase();
+
+    if (codeRequestedEmail !== email) {
+      setMessage(verifyMsg, "Send a verification code first.", "error");
+      return;
+    }
+    if (otpInput.value !== "12345") {
+      setMessage(verifyMsg, "Enter the correct five-digit verification code.", "error");
+      return;
+    }
+
+    verifiedEmail = email;
+    setMessage(verifyMsg, "Your email address is verified.", "success");
+
+    // Lock step 1 and show step 2
+    emailInput.disabled = true;
+    otpInput.disabled = true;
+    sendBtn.disabled = true;
+    verifyBtn.disabled = true;
+    resetStep.hidden = false;
+    newPassword.focus();
+  });
+
+  /* ---------- Step 2: new password ---------- */
+  function updateChangeState() {
+    const password = newPassword.value,
+      passwordOk = validatePassword(password).length === 0,
+      matches = password !== "" && password === confirmPassword.value;
+    changeBtn.disabled = !(verifiedEmail && passwordOk && matches);
+  }
+
+  function updateConfirmMessage() {
+    if (!confirmPassword.value) {
+      setMessage(confirmMsg, "");
+    } else if (confirmPassword.value !== newPassword.value) {
+      setMessage(confirmMsg, "Passwords do not match.", "error");
+    } else {
+      setMessage(confirmMsg, "Passwords match ✓", "success");
+    }
+  }
+
+  newPassword.addEventListener("input", function () {
+    const password = newPassword.value;
+
+    if (!password) {
+      setMessage(newPasswordMsg, "");
+    } else {
+      const errors = validatePassword(password);
+      if (errors.length > 0) {
+        newPasswordMsg.innerHTML = errors.map(function (e) { return "• " + e; }).join("<br>");
+        newPasswordMsg.hidden = false;
+        newPasswordMsg.className = "msg error";
+      } else {
+        setMessage(newPasswordMsg, "Strong password ✓", "success");
+      }
+    }
+    if (confirmPassword.value) updateConfirmMessage();
+  });
+
+  newPassword.addEventListener("input", updateChangeState);
+  confirmPassword.addEventListener("input", updateConfirmMessage);
+  confirmPassword.addEventListener("input", updateChangeState);
+
+  /* ---------- Submit ---------- */
+  forgotForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    if (!verifiedEmail) {
+      setMessage(formMsg, "Please verify your email address first.", "error");
+      return;
+    }
+    if (validatePassword(newPassword.value).length > 0) {
+      setMessage(formMsg, "Your new password does not meet the requirements.", "error");
+      return;
+    }
+    if (newPassword.value !== confirmPassword.value) {
+      setMessage(formMsg, "Passwords do not match.", "error");
+      return;
+    }
+
+    const accounts = readAccounts(),
+      index = findAccountIndex(verifiedEmail);
+
+    if (index < 0) {
+      setMessage(formMsg, "No account was found with this email address.", "error");
+      return;
+    }
+
+    try {
+      accounts[index].password = newPassword.value;
+      saveAccounts(accounts);
+      changeBtn.disabled = true;
+      newPassword.disabled = true;
+      confirmPassword.disabled = true;
+      setMessage(formMsg, "Your password has been changed. Redirecting to sign in...", "success");
+      window.setTimeout(function () {
+        window.location.href = "account.html";
+      }, 1500);
+    } catch (err) {
+      setMessage(formMsg, "Local storage is unavailable. Open the page with Live Server and try again.", "error");
     }
   });
 })();

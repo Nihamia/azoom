@@ -1463,6 +1463,13 @@ p {
   display: none;
 }
 
+.auth-link{
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  border: none;
+  padding-top: 0;
+}
+
 
 /* Pickup and return locations */
 .pickup-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}

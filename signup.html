@@ -68,7 +68,7 @@
               </div>
               <div class="field wide">
                 <label for="signup-email">Email</label>
-                <input id="signup-email" type="email" autocomplete="email" pattern="^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+\.[A-Za-z]{2,}$" required>
+                <input id="signup-email" type="email" autocomplete="email" required>
                 <button class="btn" id="send-verification-btn" type="button">Send OTP</button>
                 <p class="msg" id="signup-send-msg" role="status" aria-live="polite" hidden></p>
               </div>
@@ -84,10 +84,11 @@
               <div class="field wide">
                 <label for="signup-password">Password</label>
                 <input id="signup-password" type="password" autocomplete="new-password" required>
+                <div id="signup-password-msg" class="msg" hidden></div>
               </div>
             </div>
             <p class="msg" id="signup-msg" role="status" aria-live="polite" hidden></p>
-            <button class="btn" type="submit">Create account &rarr;</button>
+            <button class="btn" id="signup-submit-btn" type="submit" disabled>Create account &rarr;</button>
           </form>
           <p class="auth-link">Already have an account? <a class="text-link" id="login-link" href="account.html">Sign in</a></p>
         </div>
