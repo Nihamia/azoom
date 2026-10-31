@@ -193,9 +193,33 @@ function latestBooking() {
   }
   return bookings.length ? bookings[bookings.length - 1] : null
 }
+
+function activeBookingForDriver(email, license, pickupDate, returnDate) {
+  const bookings = readBookings(),
+  mail = String(email || "").toLowerCase(),
+  lic = String(license || "").trim().toUpperCase(),
+  t = new Date();
+  t.setMinutes(t.getMinutes() - t.getTimezoneOffset());
+  const today = t.toISOString().slice(0, 10);
+  for (let i = 0; i < bookings.length; i++) {
+    const b = bookings[i], state = bookingStatus(b);
+    if (state !== "reserved" && state !== "rented") continue;
+    const sameDriver = String(b.email || "").toLowerCase() === mail ||
+      (lic && String(b.drivingLicense || "").toUpperCase() === lic);
+    if (!sameDriver) continue;
+    // 1. the new dates overlap this booking
+    const overlaps = pickupDate <= b.returnDate && returnDate >= b.pickupDate;
+    // 2. the car is still out, so a new rental can't start until it is back
+    const stillOut = state === "rented" && pickupDate <= (b.returnDate > today ? b.returnDate : today);
+    if (overlaps || stillOut) return b
+  }
+  return null
+}
+
 const accountsKey = "azoomAccounts",
 loginKey = "azoomLoggedIn",
 rewardThreshold = 1000;
+const reservationFee = 10, cancellationFee = 20, cancellationsKey = "azoomCancellations";
 function rewardPointsForCategory(category) {
   const value = String(category || "").toLowerCase();
   if (value.indexOf("premium") >= 0) return 300;
@@ -264,6 +288,30 @@ function reserveLoyaltyReward(booking) {
   booking.estimatedTotal = original;
   return false
 }
+
+function readCancellations() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(cancellationsKey) || "[]");
+    return Array.isArray(saved) ? saved : []
+  }
+  catch (err) {
+    return []
+  }
+}
+function recordCancellation(booking) {
+  const list = readCancellations();
+  list.push({
+    reference: booking.reference,
+    email: booking.email,
+    carName: booking.carName,
+    reservationFee: Number(booking.reservationFee || 0),
+    cancellationFee: cancellationFee,
+    cancelledAt: new Date().toISOString()
+  });
+  localStorage.setItem(cancellationsKey, JSON.stringify(list))
+}
+
+
 function restoreLoyaltyReward(booking) {
   const points = Number(booking && booking.rewardsPointsRedeemed || 0);
   if (!booking || !points || !booking.email) return 0;
@@ -877,6 +925,7 @@ if (cancelYes && cancelModal) {
         return
       }
       restoreLoyaltyReward(bookings[index]);
+      recordCancellation(bookings[index]);
       bookings.splice(index, 1);
       saveBookings(bookings);
       localStorage.removeItem(reservationDraftKey);
@@ -1399,29 +1448,32 @@ function renderUserInventory() {
   if (!rows) return;
   while (rows.firstChild) rows.removeChild(rows.firstChild);
   const bookings = readBookings();
+  let count = 0;
   for (let i = bookings.length - 1; i >= 0; i--) {
-    const b = bookings[i], row = document.createElement("tr"),
-    values = [
-      b.customerName || "-",
-      b.email || "-",
-      b.phone || "-",
-      b.nric || "-",
-      b.drivingLicense || "-",
-      b.reference || "-",
-      b.carName || "-",
+    const b = bookings[i];
+    if (b.billReceived || b.paid) continue;
+    const values = [
+      b.customerName,
+      b.email,
+      b.phone,
+      b.nric || b.passport,
+      b.drivingLicense,
+      b.reference,
+      b.carName,
       (b.pickupDate || "-") + " to " + (b.returnDate || "-")
     ];
+    const row = document.createElement("tr");
     for (let j = 0; j < values.length; j++) {
       const cell = document.createElement("td");
-      cell.textContent = values[j];
+      cell.textContent = values[j] || "-";
       row.appendChild(cell)
     }
-    rows.appendChild(row)
+    rows.appendChild(row);
+    count++
   }
-  if (empty) empty.hidden = bookings.length > 0;
-  if (table) table.hidden = bookings.length === 0
+  if (empty) empty.hidden = count > 0;
+  if (table) table.hidden = count === 0
 }
-
 
 
 function renderAdminDashboard() {
@@ -1560,6 +1612,15 @@ function renderAdminDashboard() {
   show("admin-total", money(totalDue));
   show("admin-paid", money(paidTotal));
   show("admin-outstanding", money(outstandingTotal));
+  let reservationFeeTotal = 0, cancellationFeeTotal = 0;
+  for (let i = 0; i < bookings.length; i++) reservationFeeTotal += Number(bookings[i].reservationFee || 0);
+  const cancelledList = readCancellations();
+  for (let i = 0; i < cancelledList.length; i++) {
+    reservationFeeTotal += Number(cancelledList[i].reservationFee || 0);
+    cancellationFeeTotal += Number(cancelledList[i].cancellationFee || 0)
+  }
+  show("admin-reservation-fees", money(reservationFeeTotal));
+  show("admin-cancellation-fees", money(cancellationFeeTotal));
   show("admin-cost-note", "Total due and paid amounts include any appeal deductions. Customer payment submissions remain pending until staff confirms receipt.")
   renderUserInventory()
 }
@@ -2376,6 +2437,12 @@ if (form) {
 
   function saveConfirmedReservation() {
     if (!pendingBooking) return;
+    if (activeBookingForDriver(pendingBooking.email, pendingBooking.drivingLicense, pendingBooking.pickupDate, pendingBooking.returnDate)) {
+      alert("You already have a booking that clashes with these dates.");
+      pendingBooking = null;
+      if (confirmModal) confirmModal.hidden = true;
+      return
+    }
     const carId = pendingBooking.carId;
     if (!showCarAvailability(carId)) {
       select.value = carId;
@@ -2487,6 +2554,18 @@ if (form) {
       return
     }
     if (licenseError) licenseError.hidden = true;
+    const activeBooking = activeBookingForDriver(activeCustomer.email, licenseNumber.value, start.value, end.value);
+    if (activeBooking) {
+      const text = "You already have a booking (" + activeBooking.carName + ", receipt " + activeBooking.reference + ", " + activeBooking.pickupDate + " to " + activeBooking.returnDate + ") that clashes with these dates. Please choose different dates, or book after it has been returned.";
+      const availabilityMsg = document.getElementById("availability-msg");
+      if (availabilityMsg) {
+        availabilityMsg.textContent = text;
+        availabilityMsg.hidden = false;
+        availabilityMsg.scrollIntoView({ behavior: "smooth", block: "center" })
+      }
+      else alert(text);
+      return
+    }
     const car = vehicle[select.value];
     if (!showCarAvailability(select.value)) {
       updateCarOptions();
@@ -2544,7 +2623,8 @@ if (form) {
       rentalDiscountAmount: rentalDiscountAmount,
       rentalDiscountPercent: rentalDiscountAmount ? 10 : 0,
       rewardsPointsRedeemed: rentalDiscountAmount ? rewardThreshold : 0,
-      estimatedTotal: baseTotal - rentalDiscountAmount
+      estimatedTotal: baseTotal - rentalDiscountAmount,
+      reservationFee: reservationFee
     };
     pendingBooking = booking;
     show("review-customer", booking.customerName);
@@ -2555,7 +2635,7 @@ if (form) {
     show("review-dates", booking.pickupDate + " to " + booking.returnDate + " · " + days + (days === 1 ? " day" : " days"));
     show("review-license", (booking.drivingLicense));
     show("review-request", booking.additionalRequestLabel);
-    show("review-total", (money(booking.estimatedTotal)));
+    show("review-total", (money(booking.estimatedTotal)) + " + " + money(reservationFee) + " reservation fee (charged now)");
     show("review-card", maskCardNumber(cardNumber.value));
     if (confirmModal) {
       confirmModal.hidden = false
@@ -2590,11 +2670,11 @@ if (empty && box) {
     show("confirm-return", booking.returnDate);
     show("confirm-card", booking.cardLast4 ? "************" + booking.cardLast4 : "-");
     show("confirm-rate", money(booking.dailyRate) + " per day");
-    show("confirm-total", money(booking.estimatedTotal));
+    show("confirm-total", money(booking.estimatedTotal) + (booking.reservationFee ? " + " + money(booking.reservationFee) + " reservation fee charged" : ""));
     const rewardRow = document.getElementById("confirm-rewards-row");
     if (rewardRow) rewardRow.hidden = !(Number(booking.rentalDiscountAmount || 0) > 0);
     show("confirm-rewards", Number(booking.rentalDiscountAmount || 0) > 0 ? "10% off · −" + money(booking.rentalDiscountAmount) + " · 1,000 points used" : "");
-    const receipt = "AZoom Car Rental - Reservation Confirmation\nReceipt number: " + booking.reference + "\nCustomer: " + booking.customerName + "\nEmail: " + booking.email + "\nPhone: " + booking.phone + "\nDriving licence: " + (booking.drivingLicense) + "\nAdditional request: " + (booking.additionalRequestLabel || "None") + "\nVehicle: " + booking.carName + " (" + booking.category + ")\nPickup: " + booking.pickupBranch + "\nPickup location: " + (booking.pickupLocation || pickupLocation(booking.pickupBranch)) + "\nBarcode value: " + booking.reference + "\nPickup date: " + booking.pickupDate + "\nReturn date: " + booking.returnDate + "\nDays: " + booking.rentalDays + "\nRate: " + money(booking.dailyRate) + "\nRewards discount: " + money(booking.rentalDiscountAmount || 0) + "\nEstimated amount: " + money(booking.estimatedTotal),
+    const receipt = "AZoom Car Rental - Reservation Confirmation\nReceipt number: " + booking.reference + "\nCustomer: " + booking.customerName + "\nEmail: " + booking.email + "\nPhone: " + booking.phone + "\nDriving licence: " + (booking.drivingLicense) + "\nAdditional request: " + (booking.additionalRequestLabel || "None") + "\nVehicle: " + booking.carName + " (" + booking.category + ")\nPickup: " + booking.pickupBranch + "\nPickup location: " + (booking.pickupLocation || pickupLocation(booking.pickupBranch)) + "\nBarcode value: " + booking.reference + "\nPickup date: " + booking.pickupDate + "\nReturn date: " + booking.returnDate + "\nDays: " + booking.rentalDays + "\nRate: " + money(booking.dailyRate) + "\nRewards discount: " + money(booking.rentalDiscountAmount || 0) + "\nEstimated amount: " + money(booking.estimatedTotal)  + "\nReservation fee charged: " + money(booking.reservationFee || 0),
     blob = new Blob([receipt], { type: "text/plain" }),
     link = document.getElementById("download-link");
     if (link) {
