@@ -380,8 +380,13 @@ function readNoticeSeen() {
     return {}
   }
 }
+
+
+
+
 function hasUnseenNotice(user) {
   if (!user) return false;
+  if (unreadMessageCount(user.email) > 0) return true;
   const seen = readNoticeSeen()[user.email] || {}, bookings = readBookings();
   for (let i = 0; i < bookings.length; i++) {
     if (bookings[i].email !== user.email) continue;
@@ -415,8 +420,96 @@ function refreshNoticeDot() {
   if (toggle) toggle.setAttribute("aria-label", show ? "Account menu, you have new booking updates" : "Account menu")
 }
 window.addEventListener("storage", function(e) {
-  if (!e.key || e.key === bookingsKey || e.key === noticeKey || e.key === loginKey) refreshNoticeDot()
+  if (!e.key || e.key === bookingsKey || e.key === noticeKey || e.key === loginKey || e.key === messagesKey) refreshNoticeDot()
 });
+
+/* Messages from staff to customers */
+const messagesKey = "azoomMessages";
+function readMessages() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(messagesKey) || "[]");
+    return Array.isArray(saved) ? saved : []
+  }
+  catch (err) {
+    return []
+  }
+}
+function addMessage(email, text, reference) {
+  const list = readMessages();
+  list.push({
+    id: String(Date.now()) + Math.floor(Math.random() * 1000),
+    email: email,
+    reference: reference || "",
+    text: text,
+    createdAt: new Date().toISOString(),
+    read: false
+  });
+  localStorage.setItem(messagesKey, JSON.stringify(list))
+}
+function unreadMessageCount(email) {
+  const list = readMessages();
+  let count = 0;
+  for (let i = 0; i < list.length; i++) {
+    if (list[i].email === email && !list[i].read) count++
+  }
+  return count
+}
+function markMessagesRead(email) {
+  try {
+    const list = readMessages();
+    let changed = false;
+    for (let i = 0; i < list.length; i++) {
+      if (list[i].email === email && !list[i].read) {
+        list[i].read = true;
+        changed = true
+      }
+    }
+    if (changed) localStorage.setItem(messagesKey, JSON.stringify(list))
+  }
+  catch (err) {
+  }
+}
+function deleteMessage(id) {
+  try {
+    const list = readMessages(), kept = [];
+    for (let i = 0; i < list.length; i++) {
+      if (list[i].id !== id) kept.push(list[i])
+    }
+    localStorage.setItem(messagesKey, JSON.stringify(kept))
+  }
+  catch (err) {
+  }
+}
+function showAccountMessages(user) {
+  const box = document.getElementById("account-messages"),
+  list = document.getElementById("account-messages-list");
+  if (!box || !list) return;
+  while (list.firstChild) list.removeChild(list.firstChild);
+  const messages = readMessages();
+  let count = 0;
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i];
+    if (m.email !== user.email) continue;
+    const item = document.createElement("div"),
+    text = document.createElement("p"),
+    when = document.createElement("small"),
+    dismiss = document.createElement("button");
+    item.className = "account-message" + (m.read ? "" : " unread");
+    text.textContent = m.text;
+    when.textContent = new Date(m.createdAt).toLocaleString();
+    dismiss.type = "button";
+    dismiss.className = "btn alt";
+    dismiss.textContent = "Dismiss";
+    dismiss.setAttribute("data-message-id", m.id);
+    item.appendChild(text);
+    item.appendChild(when);
+    item.appendChild(dismiss);
+    list.appendChild(item);
+    count++
+  }
+  box.hidden = count === 0
+}
+
 
 function updateAccountLink() {
   let staffSignedIn = false;
@@ -510,6 +603,8 @@ function showAccount(user) {
   show("account-reward-points", points);
   show("account-reward-message", pointsMessage);
   showAccountReservation(user);
+  showAccountMessages(user);
+  markMessagesRead(user.email);
   markNoticesSeen(user); 
   updateAccountLink()
 }
@@ -890,6 +985,18 @@ if (accountBookingsArea) {
     }
   })
 }
+
+if (accountBookingsArea) {
+  accountBookingsArea.addEventListener("click", function(e) {
+    const id = e.target && e.target.getAttribute ? e.target.getAttribute("data-message-id") : null;
+    if (!id) return;
+    deleteMessage(id);
+    const user = getCurrentAccount();
+    if (user) showAccountMessages(user)
+  })
+}
+
+
 if (cancelBookingsList && cancelModal) {
   cancelBookingsList.addEventListener("click", function(e) {
     const button = e.target;
@@ -932,7 +1039,7 @@ if (cancelYes && cancelModal) {
       cancelModal.hidden = true;
       pendingCancelReference = "";
       showAccountReservation(user);
-      accountMessage("cancel-msg", "Reservation cancelled. The car is available again.")
+        accountMessage("cancel-msg", "Reservation cancelled. A cancellation fee of " + money(cancellationFee) + " will be charged to your card.")
     }
     catch (err) {
       cancelModal.hidden = true;
@@ -2082,7 +2189,10 @@ if (adminActionConfirm && adminActionModal) {
         awardPaidBookingPoints(booking)
       }
       else {
-        if (action === "cancel") restoreLoyaltyReward(booking);
+        if (action === "cancel") {
+          restoreLoyaltyReward(booking);
+          addMessage(booking.email, "Your reservation for " + booking.carName + " (receipt " + booking.reference + ") was cancelled by AZoom staff. No cancellation fee has been charged and your reservation fee will be refunded. Please contact us if you have any questions.", booking.reference)
+        }
         bookings.splice(index, 1)
       }
       saveBookings(bookings);
