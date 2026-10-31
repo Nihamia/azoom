@@ -399,8 +399,9 @@ p {
   transition: transform .22s ease, box-shadow .22s ease;
 }
 
+
 .step:hover,
-.step:focus-within {
+.step:focus-within{
   z-index: 2;
   transform: translateY(-5px) scale(1.015);
   box-shadow: 0 16px 32px #10254826;
@@ -515,6 +516,19 @@ p {
   transform: translateY(-5px) scale(1.015);
   box-shadow: 0 16px 32px #10254826;
 }
+
+.cards .card {
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+
+
+.cards .card:hover,
+.cards .card:focus-within {
+  z-index: 2;
+  transform: translateY(-5px) scale(1.015);
+  box-shadow: 0 16px 32px #10254826;
+}
+
 
 .status {
   position: absolute;
