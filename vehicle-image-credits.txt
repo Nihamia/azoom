@@ -1,18 +1,18 @@
-AZoom Assignment 2 — Vehicle photo credits and specification sources
+AZoom — Vehicle photo credits and specification sources
 ====================================================================
 
-The current website uses three AI-generated vehicle illustration sheets saved under images/vehicles/. Each 3-by-2 sheet contains separate front three-quarter-view vehicle illustrations on white backgrounds; CSS displays each car as an individual tile. The artwork is illustrative and is not an official manufacturer photograph or a guarantee of exact trim styling.
+The current website stores its individual vehicle pictures under images/cars/. Generic AI-generated vehicle illustration sheets are retained in images/archive/vehicle-sheets/ and are not displayed on the site. Vehicle model names and specifications refer to the linked manufacturer information; images are illustrative references and do not guarantee exact trim styling.
 
 AI-GENERATED CATALOG ARTWORK
 --------------------------
-- City EV front-view sheet: images/vehicles/city-front-view.png
-- Family EV front-view sheet: images/vehicles/family-front-view.png
-- Premium EV front-view sheet: images/vehicles/premium-front-view.png
-- Generated with OpenAI ImageGen on 19 October 2026 using the supplied rental-listing screenshot as a camera-angle reference. Generated sheets replace the earlier straight-on artwork; those older sheets are archived in images/vehicles/previous-front-view-sheets/. Vehicle model names and specifications refer to the linked real-world manufacturer information; the illustrations are generic concept artwork.
+- City EV front-view sheet: images/archive/vehicle-sheets/city-front-view.png
+- Family EV front-view sheet: images/archive/vehicle-sheets/family-front-view.png
+- Premium EV front-view sheet: images/archive/vehicle-sheets/premium-front-view.png
+- Generated with OpenAI ImageGen on 19 October 2026 using the supplied rental-listing screenshot as a camera-angle reference. The generated sheets are retained as unused artwork in images/archive/vehicle-sheets/. Vehicle model names and specifications refer to the linked real-world manufacturer information; the illustrations are generic concept artwork.
 
-LEGACY PHOTO ACKNOWLEDGEMENTS
+VEHICLE PHOTO ACKNOWLEDGEMENTS
 -----------------------------
-The following credits are retained for older photos archived in images/vehicles/previous-photos-not-used/. Those photos are not displayed by the current site.
+These existing source acknowledgements are retained for the credited vehicle pictures. The current catalogue pictures are organized in images/cars/.
 
 IMAGE CREDITS
 -------------

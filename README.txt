@@ -1,29 +1,37 @@
-AZoom Car Rental - simple assignment website
-===============================================
+AZoom
+=====
 
 Pages
 -----
-index.html          Homepage, car category search, and rental steps
-cars.html           Sixteen sample electric cars with rates
-reservation.html    Booking form
-confirmation.html   Saved booking and text download
-rental-process.html East and West pickup and car park return
-inspection.html     Sample employee return inspection
-final-bill.html     Rental cost and saved damage charge
+index.html          Homepage, car category search, reviews, and rental steps
+cars.html           Electric car catalogue and availability
+reservation.html    Booking form and customer details
+confirmation.html   Saved booking summary
+account.html        Customer account, bookings, billing, and rewards
+rental-process.html Pickup locations and Singapore return areas
+contact-us.html     Branch contact details and map links
+admin.html          Staff fleet dashboard, inspections, and cost report
+terms.html          Reservation terms and conditions
+privacy.html        Privacy information
 
 Files
 -----
-style.css           Shared styles and responsive layout
-script.js           Booking, confirmation, inspection, and demo payment
-images/             Local hero and return photos
-images/cars/        Individual car pictures used by img elements
+style.css           Shared styles and responsive page layouts
+script.js           Page navigation, forms, validation, bookings, and staff workflows
+images/brand/       AZoom logo
+images/cars/        Vehicle catalogue pictures
+images/home/        Homepage hero image
+images/icons/       Profile and social icons
+images/locations/   Pickup photos and return map
+images/reviews/     Review portraits
+images/archive/     Unused and older image assets retained for reference
+vehicle-image-credits.txt
+                    Image credits and vehicle specification sources
 
-The site uses HTML forms and links, Flexbox and Grid, and a few media queries. Fonts are system fonts (Arial and Georgia). No external library or font is required.
+The site uses HTML, CSS, and JavaScript. CSS Grid and Flexbox arrange page sections, cards, navigation, and button groups. Responsive styles adjust layouts for smaller screens.
 
-Submit a reservation to save its details in this browser's Local Storage and show them on the confirmation page. The confirmation can be downloaded as a text file or printed / saved as PDF.
+Customer accounts, bookings, and staff workflow information are stored in the current browser. They do not sync across devices. Email and payment actions are demonstrations and are not connected to real services.
 
-Record the inspection result and any damage charge. The final bill adds that charge to the rent. The Pay button marks the demo as paid; it does not process a real card payment.
+Open index.html with VS Code Live Server to use the browser storage features. This classroom prototype has no database or payment service. Do not enter real customer or card details.
 
-Open the project with VS Code Live Server to use Local Storage. This classroom prototype has no database or payment service. Do not enter real customer or card details.
-
-Prices are sample assumptions. Vehicle pictures are illustrative AI-generated artwork. See vehicle-image-credits.txt for image credits and specification sources.
+Vehicle pictures and prices are for the project demonstration. See vehicle-image-credits.txt for image credits and specification references.

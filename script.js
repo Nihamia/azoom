@@ -1142,7 +1142,7 @@ if (signupForm) {
         verificationMessage.className = "msg"
       }
       if (sendMessage) {
-        sendMessage.textContent = "OTP sent to " + codeRequestedEmail + ". Enter code below to verify your email.";
+        sendMessage.textContent = "OTP sent to " + codeRequestedEmail + ". Enter code below to verify your email. (for simulation, the code is 12345)";
         sendMessage.className = "msg success";
         sendMessage.hidden = false
       }
@@ -2784,7 +2784,7 @@ if (empty && box) {
     const rewardRow = document.getElementById("confirm-rewards-row");
     if (rewardRow) rewardRow.hidden = !(Number(booking.rentalDiscountAmount || 0) > 0);
     show("confirm-rewards", Number(booking.rentalDiscountAmount || 0) > 0 ? "10% off · −" + money(booking.rentalDiscountAmount) + " · 1,000 points used" : "");
-    const receipt = "AZoom Car Rental - Reservation Confirmation\nReceipt number: " + booking.reference + "\nCustomer: " + booking.customerName + "\nEmail: " + booking.email + "\nPhone: " + booking.phone + "\nDriving licence: " + (booking.drivingLicense) + "\nAdditional request: " + (booking.additionalRequestLabel || "None") + "\nVehicle: " + booking.carName + " (" + booking.category + ")\nPickup: " + booking.pickupBranch + "\nPickup location: " + (booking.pickupLocation || pickupLocation(booking.pickupBranch)) + "\nBarcode value: " + booking.reference + "\nPickup date: " + booking.pickupDate + "\nReturn date: " + booking.returnDate + "\nDays: " + booking.rentalDays + "\nRate: " + money(booking.dailyRate) + "\nRewards discount: " + money(booking.rentalDiscountAmount || 0) + "\nEstimated amount: " + money(booking.estimatedTotal)  + "\nReservation fee charged: " + money(booking.reservationFee || 0),
+    const receipt = "AZoom - Reservation Confirmation\nReceipt number: " + booking.reference + "\nCustomer: " + booking.customerName + "\nEmail: " + booking.email + "\nPhone: " + booking.phone + "\nDriving licence: " + (booking.drivingLicense) + "\nAdditional request: " + (booking.additionalRequestLabel || "None") + "\nVehicle: " + booking.carName + " (" + booking.category + ")\nPickup: " + booking.pickupBranch + "\nPickup location: " + (booking.pickupLocation || pickupLocation(booking.pickupBranch)) + "\nBarcode value: " + booking.reference + "\nPickup date: " + booking.pickupDate + "\nReturn date: " + booking.returnDate + "\nDays: " + booking.rentalDays + "\nRate: " + money(booking.dailyRate) + "\nRewards discount: " + money(booking.rentalDiscountAmount || 0) + "\nEstimated amount: " + money(booking.estimatedTotal)  + "\nReservation fee charged: " + money(booking.reservationFee || 0),
     blob = new Blob([receipt], { type: "text/plain" }),
     link = document.getElementById("download-link");
     if (link) {
@@ -3225,7 +3225,7 @@ for (let i = 0; i < menuLinks.length; i++) {
     otpInput.disabled = false;
     verifyBtn.disabled = false;
     setMessage(verifyMsg, "");
-    setMessage(sendMsg, "OTP sent to " + email + ". Enter the code below to verify your email.", "success");
+    setMessage(sendMsg, "OTP sent to " + email + ". Enter the code below to verify your email. (for simulation, the code is 12345)", "success");
     otpInput.focus();
   });
 
